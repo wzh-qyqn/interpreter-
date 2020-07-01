@@ -33,7 +33,7 @@
 #include <cstdlib>
 #include <Windows.h>
 
-#define MAIN_TEST
+//#define MAIN_TEST
 using namespace std;
 #ifdef MAIN_TEST
 typedef inter::Str_Type use_string;
@@ -202,8 +202,17 @@ int main(int argc, char* argv[])
 }
 #else
 #include "matix.h"
-
-const unsigned int test_row = 8;
+template<typename T>
+std::ostream& operator<< (std::ostream& os, const inter::Matrix<T>& pmat) {
+	for (size_t i = 0; i < pmat.row(); i++) {
+		for (size_t j = 0; j < pmat.col(); j++) {
+			os << pmat.loc(i, j) << ' ';
+		}
+		os << std::endl;
+	}
+	return os;
+}
+const unsigned int test_row = 5;
 const unsigned int test_col = 8;
 int main(void) {
 	long double * ptest = new long double[test_col * test_row];
@@ -212,8 +221,9 @@ int main(void) {
 	}
 	inter::Matrix<long double> test(test_row, test_col, ptest);
 	cout << test;
+	
 	cout << "trans test:" << endl;
-	test.transpos();
+	test = test.transpos();
 	for (unsigned int i = 0; i < test.row(); i++) {
 		for (unsigned int j = 0; j < test.col(); j++) {
 			cout << test.loc(i, j) << ' ';
