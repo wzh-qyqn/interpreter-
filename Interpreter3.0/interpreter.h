@@ -184,7 +184,7 @@ private:
     //表示节点的具体属性，代表了节点的种类
     enum Item_Type {
         BINARY_OPERATOR,	//二元运算符
-        SINGLE_FUNCTION,	//单变量数据
+        STATIC_FUNCTION,	//单变量数据
         UNARY_OPERATOR,		//一元运算符
         ASSIGNMENT_OPERATOR,//赋值运算符
         NUM,				//数值节点
@@ -192,7 +192,6 @@ private:
 		SQ_BEACKET_OPERATOR,//方括号
 		DIVIDE_OPERATOR,	//分隔符
         COMMA_OPRERATOR,    //逗号运算符
-        VARIBLE_PACKAGE,	//变量包
         UNDEF_NAME,			//还未定义的名字	
     };
     /**
@@ -383,23 +382,6 @@ private:
 		}
 	};
     /**
-    * @brief 变量包
-    */
-    class Varible_Package :public Node_Vector {
-    public:
-        Varible_Package(_My_List* baselist) :
-            Node_Vector(baselist, VARIBLE_PACKAGE, 0) {};
-        Varible_Package():
-            Node_Vector(VARIBLE_PACKAGE, 0) {};
-        virtual _My_List_Iter operation(void)override {
-            return ++get_iter();
-        }
-        virtual void get_data(Base_Data& num_data) {
-            num_data = use_vector.back();
-        }
-		void move_to_package(Base_Item* num_data);
-    };
-    /**
     * @brief 逗号运算符
     */
     class Comma_Operator :public Node_Empty {
@@ -411,12 +393,12 @@ private:
     /**
     * @brief 单变量函数的节点，过程与上面相似
     */
-    class SingleVar_Function :public Node_Int {
+    class Static_Function :public Node_Int {
     public:
-        SingleVar_Function(_My_List* baselist, size_t offset) :
-            Node_Int(baselist, SINGLE_FUNCTION, offset, singlevar_priority) {}
-        SingleVar_Function(int offset) :
-            Node_Int(SINGLE_FUNCTION, offset, singlevar_priority) {}
+        Static_Function(_My_List* baselist, size_t offset) :
+            Node_Int(baselist, STATIC_FUNCTION, offset, singlevar_priority) {}
+        Static_Function(int offset) :
+            Node_Int(STATIC_FUNCTION, offset, singlevar_priority) {}
 		virtual _My_List_Iter operation(void)override;
     };
     /**

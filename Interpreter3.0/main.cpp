@@ -33,7 +33,7 @@
 #include <cstdlib>
 #include <Windows.h>
 
-//#define MAIN_TEST
+#define MAIN_TEST
 using namespace std;
 #ifdef MAIN_TEST
 typedef inter::Str_Type use_string;
@@ -212,14 +212,14 @@ std::ostream& operator<< (std::ostream& os, const inter::Matrix<T>& pmat) {
 	}
 	return os;
 }
-const unsigned int test_row = 5;
+const unsigned int test_row = 8;
 const unsigned int test_col = 8;
 int main(void) {
-	long double * ptest = new long double[test_col * test_row];
+	double * ptest = new double[test_col * test_row];
 	for (unsigned int i = 0; i < test_row * test_col; i++) {
 		ptest[i] = rand() % 10;
 	}
-	inter::Matrix<long double> test(test_row, test_col, ptest);
+	inter::Matrix<double> test(test_row, test_col, ptest);
 	cout << test;
 	
 	cout << "trans test:" << endl;

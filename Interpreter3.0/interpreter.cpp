@@ -607,7 +607,7 @@ size_t inter::Interpreter::symbol_string(_My_List & buf_list, const Char_Type * 
 				new Node_Num(main_list, pnum);
 			}
 			else if ((offset = is_in_store(singlevar_func, use_name)) != singlevar_func_num) {
-				new SingleVar_Function(main_list, offset);
+				new Static_Function(main_list, offset);
 			}
 			else {
 				new Undef_Name(main_list, use_name);
@@ -707,13 +707,7 @@ void inter::Interpreter::analyze_string(const Str_Type & str, _My_List & buf_lis
 		}
 		if (buf_list.size() == 1) {
 			Base_Data pres;
-			if (buf_list.front()->get_item() == VARIBLE_PACKAGE) {
-				_Data_Array* pvec;
-				buf_list.front()->get_data(pvec);
-				pres = Base_Data(*pvec);
-			}
-			else
-				buf_list.front()->get_data(pres);
+			buf_list.front()->get_data(pres);
 			final_result = pres.get_real();         //final_result可能只获得了变量表中的影子
 													//因此为防止变量表清除影响结果，强制变为本体
 			delete buf_list.front();
@@ -859,32 +853,32 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operatio
 		throw show_err("括号内节点个数异常,剩余节点个数：", use_list.size());
 }
 
-void inter::Interpreter::Varible_Package::move_to_package(Base_Item * num_data) {
-	Base_Data pdata;
-	num_data->get_data(pdata);
-	use_vector.push_back(pdata);
-	delete num_data;
-}
 
 inter::Interpreter::_My_List_Iter inter::Interpreter::Comma_Operator::operation(void) {
-	Varible_Package* pPackage = new Varible_Package;
+	_Data_Array pPackage;
 	_My_List_Iter comma_iter = get_iter();
 	auto next = [](_My_List_Iter pIter) {return ++pIter; };
 	auto priv = [](_My_List_Iter pIter) {return --pIter; };
-	pPackage->move_to_package(*priv(comma_iter));//逗号前的元素移到包内
+	auto move_to_package = [&pPackage](Base_Item* pItem) {
+		Base_Data pdata;
+		pItem->get_data(pdata);
+		pPackage.push_back(pdata);
+		delete pItem;
+	};
+	move_to_package(*priv(comma_iter));//逗号前的元素移到包内
 	if (next(comma_iter) == get_master()->end()) {
 		throw show_err("逗号使用错误！");
 	}
-	pPackage->move_to_package(*next(comma_iter));//逗号后的元素移到包内
+	move_to_package(*next(comma_iter));//逗号后的元素移到包内
 	if (next(comma_iter) == get_master()->end()) {
-		return instead(pPackage);
+		return instead(new Node_Num(Base_Data(pPackage)));
 	}
 	comma_iter++;//尝试看看后面是否还有逗号
 	while ((*comma_iter)->get_item() == COMMA_OPRERATOR) {
 		if (next(comma_iter) == get_master()->end()) {//逗号做结尾的情况
 			throw show_err("逗号使用错误！");
 		}
-		pPackage->move_to_package(*next(comma_iter));
+		move_to_package(*next(comma_iter));
 		if (next(comma_iter) == get_master()->end()) {//移除完元素后面没有逗号了
 			delete *comma_iter;//把自己删掉，只保留一个用来替换元素，其他的成分都删掉
 			break;
@@ -892,18 +886,16 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Comma_Operator::operation(
 		comma_iter++;
 		delete *priv(comma_iter);
 	}
-	return instead(pPackage);
+	return instead(new Node_Num(Base_Data(pPackage)));
 }
 
-inter::Interpreter::_My_List_Iter inter::Interpreter::SingleVar_Function::operation(void) {
+inter::Interpreter::_My_List_Iter inter::Interpreter::Static_Function::operation(void) {
 	Base_Data a;
 	_My_List_Iter use_iter;
 	if (this == get_master()->back()) {
 		throw show_err("'", singlevar_func[num].name, "' 函数后面缺少参数");
 	}
 	Base_Item* node_next = *(++get_iter());
-	if (node_next->get_item() == VARIBLE_PACKAGE)
-		throw show_err(singlevar_func[num].name, " 此函数是单变量的哦");
 	node_next->get_data(a);
 	auto&& res = singlevar_func[num].func(a);
 	use_iter = instead(new Node_Num(res));
@@ -1001,16 +993,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Assignment_Operator::opera
 	Base_Item* node_priv = *(--get_iter());
 	Base_Item* node_next = *(++get_iter());
 	Base_Data pnum;
-	if (node_next->get_item() == VARIBLE_PACKAGE) {//
-		_Data_Array* pvec;
-		node_next->get_data(pvec);
-		if (pvec->size() == 1)
-			pnum = pvec->front();
-		else
-			pnum = Base_Data(*pvec);
-	}
-	else
-		node_next->get_data(pnum);
+	node_next->get_data(pnum);
 	if (node_priv->get_item() == UNDEF_NAME) {//创建新的变量
 		Str_Type pstr;
 		node_priv->get_data(pstr);
