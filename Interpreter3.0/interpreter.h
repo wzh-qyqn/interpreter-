@@ -53,6 +53,7 @@ class Interpreter {
 public:
 	class Base_Data;
 	typedef std::vector<Base_Data> _Data_Array;
+
     /**
     * @brief 运行过程支持的基础数据类型枚举
     */
@@ -156,7 +157,7 @@ private:
     };
     //各种键值对的个数
     static const size_t binary_func_num		= 8;		//二元运算符个数
-    static const size_t singlevar_func_num	= 18;		//单变量函数个数
+    static const size_t singlevar_func_num	= 23;		//单变量函数个数
     static const size_t unary_func_num		= 1;		//单目运算符个数
 	static const size_t const_BaseData_num	= 6;		//常量个数
 
@@ -188,6 +189,8 @@ private:
         UNARY_OPERATOR,		//一元运算符
         ASSIGNMENT_OPERATOR,//赋值运算符
         NUM,				//数值节点
+		NUM_ELEME,
+		NUM_VARIBLE,
         BRACKET_OPERATOR,	//括号运算符
 		SQ_BEACKET_OPERATOR,//方括号
 		DIVIDE_OPERATOR,	//分隔符
@@ -243,25 +246,52 @@ private:
     /**
     * @brief 附加数据为 Base_Data的Base_Item 派生类
     */
-    class Node_Num :public Base_Item {
-    private:
-        Base_Data store_num;
+	class Node_Num :public Base_Item {
+	protected:
+		Base_Data store_num;
+	public:
+		Node_Num(_My_List* baselist, Item_Type itype, Base_Data&& usenum) :
+			Base_Item(baselist,BASE_NUM,itype,0), store_num(usenum){}
+		Node_Num(Item_Type itype,Base_Data&&usenum) :
+			Base_Item(BASE_NUM, itype, 0), store_num(usenum) {}
+		Node_Num(_My_List* baselist, Item_Type itype, const Base_Data& usenum) :
+			Base_Item(baselist, BASE_NUM, itype, 0), store_num(usenum) {};
+		Node_Num(Item_Type itype,const Base_Data& usenum) :
+			Base_Item(BASE_NUM, itype, 0), store_num(usenum) {};
+		virtual void get_data(Base_Data& num_data)override {
+			num_data = store_num;
+		}
+		virtual _My_List_Iter operation(void)override = 0;
+	};
+    class Noraml_Num :public Node_Num {
     public:
-        Node_Num(_My_List* baselist,Base_Data&& usenum) :
-            Base_Item(baselist,BASE_NUM, NUM,0), store_num(usenum) {};
-        Node_Num(Base_Data&&usenum):
-            Base_Item(BASE_NUM, NUM,0), store_num(usenum) {}
-        Node_Num(_My_List* baselist, const Base_Data& usenum) :
-            Base_Item(baselist, BASE_NUM, NUM,0), store_num(usenum) {};
-        Node_Num(const Base_Data& usenum) :
-            Base_Item(BASE_NUM, NUM,0), store_num(usenum) {};
-        virtual void get_data(Base_Data& num_data)override {
-            num_data = store_num;
-        }
+        Noraml_Num(_My_List* baselist,Base_Data&& usenum) :
+			Node_Num(baselist, NUM, usenum){};
+        Noraml_Num(Base_Data&&usenum):
+			Node_Num(NUM, usenum){}
+        Noraml_Num(_My_List* baselist, const Base_Data& usenum) :
+			Node_Num(baselist, NUM, usenum) {};
+		Noraml_Num(const Base_Data& usenum) :
+			Node_Num(NUM, usenum) {};
         virtual _My_List_Iter operation(void)override {
             return ++get_iter();
         }
     };
+	class Varible_Num :public Node_Num {
+	public:
+		Varible_Num(_My_List* baselist, Base_Data&& usenum) :
+			Node_Num(baselist, NUM_VARIBLE, usenum) {};
+		Varible_Num(Base_Data&&usenum) :
+			Node_Num(NUM_VARIBLE, usenum) {}
+		Varible_Num(_My_List* baselist, const Base_Data& usenum) :
+			Node_Num(baselist, NUM_VARIBLE, usenum) {};
+		Varible_Num(const Base_Data& usenum) :
+			Node_Num(NUM_VARIBLE, usenum) {};
+		virtual _My_List_Iter operation(void)override {
+			return ++get_iter();
+		}
+	};
+	
     /**
     * @brief 附加数据为 string的Base_Item 派生类
     */
@@ -308,6 +338,7 @@ private:
             Base_Item(BASE_EMPTY, itype, prio) {}
         virtual ~Node_Empty() {}
     };
+	
     /**
     * @brief 附加数据为 _My_List的Base_Item 派生类
     */
@@ -344,6 +375,8 @@ private:
             Base_Item(baselist,BASE_VECTOR, itype, prio) {}
         virtual ~Node_Vector() {}
     };
+
+
     /**
     * @brief 二元运算符的节点
     */
@@ -445,11 +478,176 @@ private:
 		Base_Data push_new(const Str_Type&pstr, const Base_Data &pdata);//填入新变量
 		Base_Data data_change(void* psrc, const Base_Data& pdata);		//改变变量值
 		bool find_in(const Str_Type&pstr, Base_Data &pdata);			//根据字符串寻找变量
+		bool find_in(void* paddr, _My_Map_Iter& pIter);
 		_My_Map get_main_var(void) {										//获取变量表
 			return var_map;
 		}
 		void clear(void);												//清空变量表
     };
+	class Node_Elem_Num :public Node_Empty {//改
+	public:
+		enum Elem_Type {
+			ARRAY_1,
+			MATRIX_1,
+			MATRIX_2,
+			CMATRIX_1,
+			CMATRIX_2
+		};
+	private:
+		const size_t xpos;
+		const size_t ypos;
+		void* const paddr;
+		const Elem_Type type;
+	public:
+		Node_Elem_Num(void* addr, Elem_Type ptype, size_t xupos, size_t yupos = 0) :
+			Node_Empty(NUM_ELEME, 0), xpos(xupos), ypos(yupos), type(ptype), paddr(addr) {}
+		Node_Elem_Num(_My_List* baselist, void* addr, Elem_Type ptype, size_t xupos, size_t yupos = 0) :
+			Node_Empty(baselist, NUM_ELEME, 0), xpos(xupos), ypos(yupos), type(ptype), paddr(addr) {};
+		void assign(Base_Data& num_data, Variable_Map* pmap) {
+			switch (type) {
+			case ARRAY_1:
+				reinterpret_cast<_Data_Array*>(paddr)->at(xpos) = num_data;
+				break;
+			case MATRIX_1: {
+				const auto& lmat = reinterpret_cast<Matrix_Type*>(paddr);
+				if (num_data.get_type() == DATA_MATRIX) {
+					Matrix_Type* rmat;
+					num_data.get_data(rmat);
+					if (rmat->col() != lmat->col()) {
+						throw show_err("行向量赋值失败，维数不统一");
+					}
+					for (size_t i = 0; i < rmat->col(); i++) {
+						lmat->loc(xpos, i) = rmat->loc(0, i);
+					}
+				}
+				else {
+					Cmatrix_Type* rmat;
+					num_data.get_data(rmat);
+					if (rmat->col() != lmat->col()) {
+						throw show_err("行向量赋值失败，维数不统一");
+					}
+					Complex_Type* pbuf = new Complex_Type[lmat->col()*lmat->row()];
+					for (size_t i = 0; i < lmat->col()*lmat->row(); i++) {
+						pbuf[i] = lmat->data()[i];
+					}
+					for (size_t i = 0; i < lmat->col(); i++) {
+						pbuf[xpos*lmat->col() + i] = rmat->loc(0, i);
+					}
+					pmap->data_change(paddr, Base_Data(Cmatrix_Type(lmat->row(), lmat->col(), pbuf, false)));
+
+				}
+				break;
+			}
+			case CMATRIX_1: {
+				const auto& lmat = reinterpret_cast<Cmatrix_Type*>(paddr);
+				if (num_data.get_type() == DATA_MATRIX) {
+					Matrix_Type* rmat;
+					num_data.get_data(rmat);
+					if (rmat->col() != lmat->col()) {
+						throw show_err("行向量赋值失败，维数不统一");
+					}
+					for (size_t i = 0; i < rmat->col(); i++) {
+						lmat->loc(xpos, i) = rmat->loc(0, i);
+					}
+				}
+				else {
+					Cmatrix_Type* rmat;
+					num_data.get_data(rmat);
+					if (rmat->col() != lmat->col()) {
+						throw show_err("行向量赋值失败，维数不统一");
+					}
+					for (size_t i = 0; i < rmat->col(); i++) {
+						lmat->loc(xpos, i) = rmat->loc(0, i);
+					}
+				}
+				break;
+			}
+			case MATRIX_2: {
+				const auto& lmat = reinterpret_cast<Matrix_Type*>(paddr);
+				if (num_data.get_type() == DATA_DOUBLE) {
+					Num_Type rnum;
+					num_data.get_data(rnum);
+					lmat->loc(xpos, ypos) = rnum;
+				}
+				else if (num_data.get_type() == DATA_BOOL) {
+					bool rnum;
+					num_data.get_data(rnum);
+					lmat->loc(xpos, ypos) = Num_Type(rnum);
+				}
+				else {
+					Complex_Type rnum;
+					num_data.get_data(rnum);
+					Complex_Type* pbuf = new Complex_Type[lmat->col()*lmat->row()];
+					for (size_t i = 0; i < lmat->col()*lmat->row(); i++) {
+						pbuf[i] = lmat->data()[i];
+					}
+					pbuf[xpos*lmat->col() + ypos] = rnum;
+					pmap->data_change(paddr, Base_Data(Cmatrix_Type(lmat->row(), lmat->col(), pbuf, false)));
+				}
+				break;
+			}
+			case CMATRIX_2: {
+				const auto& lmat = reinterpret_cast<Cmatrix_Type*>(paddr);
+				if (num_data.get_type() == DATA_DOUBLE) {
+					Num_Type rnum;
+					num_data.get_data(rnum);
+					lmat->loc(xpos, ypos) = rnum;
+				}
+				else if (num_data.get_type() == DATA_BOOL) {
+					bool rnum;
+					num_data.get_data(rnum);
+					lmat->loc(xpos, ypos) = Num_Type(rnum);
+				}
+				else {
+					Complex_Type rnum;
+					num_data.get_data(rnum);
+					lmat->loc(xpos, ypos) = rnum;
+				}
+				break;
+			}
+			default:
+				throw show_err("未知错误");
+				break;
+			}
+		}
+		virtual _My_List_Iter operation(void)override {
+			return ++get_iter();
+		}
+		virtual void get_data(Base_Data& num_data)override {
+			switch (type) {
+			case ARRAY_1: {
+				num_data = reinterpret_cast<_Data_Array*>(paddr)->at(xpos);
+				break;
+			}
+			case MATRIX_1: {
+				Num_Type* pbuf = new Num_Type[reinterpret_cast<Matrix_Type*>(paddr)->col()];
+				for (size_t i = 0; i < reinterpret_cast<Matrix_Type*>(paddr)->col(); i++) {
+					pbuf[i] = reinterpret_cast<Matrix_Type*>(paddr)->loc(xpos, i);
+				}
+				num_data = Base_Data(Matrix_Type(1, reinterpret_cast<Matrix_Type*>(paddr)->col(), pbuf, false));
+				break;
+			}
+			case CMATRIX_1: {
+				Complex_Type* pbuf = new Complex_Type[reinterpret_cast<Cmatrix_Type*>(paddr)->col()];
+				for (size_t i = 0; i < reinterpret_cast<Cmatrix_Type*>(paddr)->col(); i++) {
+					pbuf[i] = reinterpret_cast<Cmatrix_Type*>(paddr)->loc(xpos, i);
+				}
+				num_data = Base_Data(Cmatrix_Type(1, reinterpret_cast<Cmatrix_Type*>(paddr)->col(), pbuf, false));
+				break;
+			}
+			case MATRIX_2: {
+				num_data = Base_Data(reinterpret_cast<Matrix_Type*>(paddr)->loc(xpos, ypos));
+				break;
+			}
+			case CMATRIX_2: {
+				num_data = Base_Data(reinterpret_cast<Cmatrix_Type*>(paddr)->loc(xpos, ypos));
+				break;
+			}
+			default:
+				throw show_err("");
+			}
+		}
+	};
     /**
     * @brief 赋值运算符的节点
     */

@@ -679,6 +679,62 @@ static inline Complex_Type rtgamma(const Complex_Type& a) {
 	throw show_err("不支持复数的阶乘");
 }
 
+static inline Num_Type rdet(Matrix_Type* a) {
+	return a->det();
+}
+static inline Complex_Type rdet(Cmatrix_Type* a) {
+	return a->det();
+}
+static inline Matrix_Type rreserve(Matrix_Type* a) {
+	return a->reverse();
+}
+static inline Cmatrix_Type rreserve(Cmatrix_Type* a) {
+	return a->reverse();
+}
+static inline Num_Type rrow(Matrix_Type* a) {
+	return Num_Type(a->row());
+}
+static inline Num_Type rrow(Cmatrix_Type* a) {
+	return Num_Type(a->row());
+}
+static inline Num_Type rcol(Matrix_Type* a) {
+	return Num_Type(a->col());
+}
+static inline Num_Type rcol(Cmatrix_Type* a) {
+	return Num_Type(a->col());
+}
+static inline Matrix_Type rtranse(Matrix_Type* a) {
+	return a->transpos();
+}
+static inline Cmatrix_Type rtranse(Cmatrix_Type* a) {
+	return a->transpos();
+}
+
+#define MATRIX_FUNCTION_DECLARE(name)	Use_Data m##name##(const Use_Data& a){\
+											switch(a.get_type()){\
+											case Interpreter::DATA_MATRIX:{\
+												Matrix_Type* a1;\
+												a.get_data(a1); \
+												return Use_Data(name##(a1));\
+												} \
+											case Interpreter::DATA_CMATRIX:{\
+												Cmatrix_Type* a1;\
+												a.get_data(a1); \
+												return Use_Data(name##(a1));\
+												} \
+											default:\
+												throw show_err("函数不支持其类型"); \
+											}\
+										}
+#define ARRAY_FUNCTION_DECLARE(name)    Use_Data a##name##(const Use_Data& a){\
+											switch(a.get_type()){\
+											case Interpreter::DATA_ARRAY:{\
+												Matrix_Type* a1;\
+												a.get_data(a1);\
+												return Use_Data(name##(a1));\
+											}\
+											}\
+										}
 #define SINGLEVAR_FUNCTION_DECLARE(name) Use_Data u##name##(const Use_Data& a) {\
                                         switch (a.get_type()) {\
                                         case Interpreter::DATA_DOUBLE: {\
@@ -997,6 +1053,7 @@ static inline Complex_Type rtgamma(const Complex_Type& a) {
 											}\
 											SINGLEVAR_FUNCTION_DECLARE(r##name)
 
+
 SINGLEVAR_FUNC_NEWDECLARE(sin)
 SINGLEVAR_FUNC_NEWDECLARE(cos)
 SINGLEVAR_FUNC_NEWDECLARE(tan)
@@ -1025,6 +1082,11 @@ BINARY_FUNCTION_DECLARE(rless)
 BINARY_FUNCTION_DECLARE(rgreater)
 SINGLEVAR_FUNCTION_DECLARE(rtgamma)
 
+MATRIX_FUNCTION_DECLARE(rdet)
+MATRIX_FUNCTION_DECLARE(rreserve)
+MATRIX_FUNCTION_DECLARE(rrow)
+MATRIX_FUNCTION_DECLARE(rtranse)
+MATRIX_FUNCTION_DECLARE(rcol)
 }
 
 const std::array<Interpreter::Binary_Func, Interpreter::binary_func_num>Interpreter::binary_func = {
@@ -1055,7 +1117,12 @@ const std::array<Interpreter::SingleVar_Func, Interpreter::singlevar_func_num>In
     "atanh"	,uratanh,
     "exp"	,urexp,
     "real"	,urreal,
-    "imag"	,urimag
+    "imag"	,urimag,
+	"det"	,mrdet,
+	"reser" ,mrreserve,
+	"row"	,mrrow,
+	"transe",mrtranse,
+	"col"	,mrcol
 };
 const std::array<Interpreter::Unary_Func, \
     Interpreter::unary_func_num>Interpreter::unary_func = {

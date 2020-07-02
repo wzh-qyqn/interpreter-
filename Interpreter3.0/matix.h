@@ -26,7 +26,7 @@ public:
 	constexpr size_t col() const;//矩阵列数
 	Matrix	transpos();		//矩阵转置
 	constexpr T* data()const;
-	constexpr T	loc(size_t lnum, size_t cnum) const;//访问矩阵元素，与C语言二维数组访问规则一致，从0~row-1 , 0~col-1
+	constexpr T& loc(size_t lnum, size_t cnum) const;//访问矩阵元素，与C语言二维数组访问规则一致，从0~row-1 , 0~col-1
 	Matrix	alg_complem(size_t lnum, size_t cnum) const;//求指定坐标下的代数余子式
 	Matrix	adjoint()const; //求取伴随阵
 	Matrix	reverse()const;	//求逆阵
@@ -156,9 +156,10 @@ constexpr inline size_t Matrix<T>::col() const {
 
 //与C语言二维数组访问规则一致，从0~line-1 , 0~colum-1
 template<typename T>
-constexpr inline T Matrix<T>::loc(size_t lnum, size_t cnum) const {
+constexpr inline T& Matrix<T>::loc(size_t lnum, size_t cnum) const {
 	if (lnum >= row_num || cnum >= col_num) {
-		throw inter_error("矩阵元素访问错误！");
+		throw show_err("矩阵元素访问错误，可访问范围：0~", \
+			row_num-1 ," 0~", col_num-1,"输入访问的坐标值：", lnum," ,", cnum);
 	}
 	return paddr[lnum*col_num + cnum];
 }

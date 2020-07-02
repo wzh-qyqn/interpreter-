@@ -15,6 +15,11 @@ inline void inter::Interpreter::Base_Data::_Malloc(const Base_Data & pData) {
 		break;
 	case DATA_ARRAY:
 		data = new _Data_Array(*reinterpret_cast<_Data_Array*>(pData.data));
+		for (size_t i = 0; i < reinterpret_cast<_Data_Array*>(data)->size(); i++) {
+			if (reinterpret_cast<_Data_Array*>(data)->at(i).is_shadow()) {
+				reinterpret_cast<_Data_Array*>(data)->at(i) = reinterpret_cast<_Data_Array*>(data)->at(i).get_real();
+			}
+		}
 		break;
 	case DATA_MATRIX:
 		data = new Matrix_Type(*reinterpret_cast<Matrix_Type*>(pData.data));
@@ -321,6 +326,7 @@ void inter::Interpreter::Base_Data::get_data(Cmatrix_Type *& res) const{
 }
 
 
+
 inter::Interpreter::Base_Data::~Base_Data() {
 	if (is_init&&is_own)
 		_Free();
@@ -457,6 +463,7 @@ void inter::Interpreter::Base_Item::get_data(_Data_Array *& usevector) {
 	throw show_err("向量指针获取错误，错误节点属性：", i_type);
 }
 
+
 int inter::Interpreter::Base_Item::get_prio() {
 	return priority;
 }
@@ -586,9 +593,10 @@ size_t inter::Interpreter::symbol_string(_My_List & buf_list, const Char_Type * 
 			continue;
 		}
 		else if (num_offset != 0) {
-			new Node_Num(main_list, Base_Data(std::stold(&str[i - num_offset])));
+			new Noraml_Num(main_list, Base_Data(std::stold(&str[i - num_offset])));
 			num_offset = 0;
 		}
+
 		if (is_name(str[i], num_offset)) {
 			name_offset++;
 			continue;
@@ -598,13 +606,13 @@ size_t inter::Interpreter::symbol_string(_My_List & buf_list, const Char_Type * 
 			Base_Data pnum;
 
 			if ((offset = is_in_store(const_BaseData, use_name)) != const_BaseData_num) {
-				new Node_Num(main_list, const_BaseData[offset].num);
+				new Noraml_Num(main_list, const_BaseData[offset].num);
 			}
 			else if (use_name == result_string) {
-				new Node_Num(main_list, final_result.get_shadow());
+				new Noraml_Num(main_list, final_result.get_shadow());
 			}
 			else if (main_var.find_in(use_name, pnum)) {
-				new Node_Num(main_list, pnum);
+				new Varible_Num(main_list, pnum);
 			}
 			else if ((offset = is_in_store(singlevar_func, use_name)) != singlevar_func_num) {
 				new Static_Function(main_list, offset);
@@ -825,7 +833,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Binary_Operator::operation
 	if (this == get_master()->front()) {		//左端没有节点
 		if (binary_func[num].name == '+' || binary_func[num].name == '-') {//可能是正负号
 			auto&& res = binary_func[num].func(Base_Data(Num_Type(0)), b);
-			use_iter = instead(new Node_Num(res));
+			use_iter = instead(new Noraml_Num(res));
 			delete node_next;
 			return use_iter;
 		}
@@ -834,7 +842,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Binary_Operator::operation
 	Base_Item* node_priv = *(--get_iter());		//获取左端的节点指针
 	node_priv->get_data(a);						//获取数据（不是num节点会自动抛出异常)
 	auto&& res = binary_func[num].func(a, b);	//对数据进行对应的运算
-	use_iter = instead(new Node_Num(res));		//用计算结果的num节点替换掉自己
+	use_iter = instead(new Noraml_Num(res));		//用计算结果的num节点替换掉自己
 	delete node_priv;							//删除左端的节点
 	delete node_next;							//删除右端的节点
 	return use_iter;							//返回新的迭代器
@@ -847,6 +855,96 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operatio
 	}
 	simply_express(use_list);//化简自身的节点
 	if (use_list.size() == 1) {
+		if (this != get_master()->front()) {
+			Base_Item* priv = *(--get_iter());
+			if (priv->get_base() == BASE_NUM) {
+				Base_Data pbuf;
+				Base_Data pself;
+				use_list.front()->get_data(pself);
+				priv->get_data(pbuf);
+				switch (pbuf.get_type()) {
+				case DATA_ARRAY: {//
+					_Data_Array* pvec;
+					Base_Item* pItem;
+					Num_Type poffset;
+					pbuf.get_data(pvec);
+					pself.get_data(poffset);
+					if (size_t(poffset) >= pvec->size()) {
+						throw show_err("数组元素访问错误，可访问范围：0~", pvec->size()-1, ",试图访问的坐标：", size_t(poffset));
+					}
+					pItem = new Node_Elem_Num(pvec, Node_Elem_Num::ARRAY_1, size_t(poffset));
+					delete priv;
+					return instead(pItem);
+				}
+				case DATA_MATRIX: {
+					Matrix_Type* pmat;
+					Base_Item* pItem;
+					pbuf.get_data(pmat);
+					switch (pself.get_type()) {
+					case DATA_DOUBLE: {
+						Num_Type poffset;
+						pself.get_data(poffset);
+						if (size_t(poffset) >= pmat->row()) {
+							throw show_err("矩阵行向量访问错误，可访问范围：0~", pmat->row()-1, ",试图访问的坐标：", size_t(poffset));
+						}
+						pItem = new Node_Elem_Num(pmat, Node_Elem_Num::MATRIX_1, size_t(poffset));
+						delete priv;
+						return instead(pItem);
+					}
+					case DATA_ARRAY: {
+						_Data_Array* pvec;
+						pself.get_data(pvec);
+						if(pvec->size()!=2)
+							throw show_err("访问矩阵元素的下标个数错误！");
+						Num_Type poffi;
+						Num_Type poffj;
+						pvec->at(0).get_data(poffi);
+						pvec->at(1).get_data(poffj);
+						pItem = new Node_Elem_Num(pmat, Node_Elem_Num::MATRIX_2, size_t(poffi), size_t(poffj));
+						delete priv;
+						return instead(pItem);
+					}
+					default:
+						throw show_err("下标里混进了奇怪的东西，无法解析为下标");
+					}
+				}
+				case DATA_CMATRIX: {
+					Cmatrix_Type* pmat;
+					Base_Item* pItem;
+					pbuf.get_data(pmat);
+					switch (pself.get_type()) {
+					case DATA_DOUBLE: {
+						Num_Type poffset;
+						pself.get_data(poffset);
+						if (size_t(poffset) >= pmat->row()) {
+							throw show_err("矩阵行向量访问错误，可访问范围：0~", pmat->row() - 1, ",试图访问的坐标：", size_t(poffset));
+						}
+						pItem = new Node_Elem_Num(pmat, Node_Elem_Num::CMATRIX_1, size_t(poffset));
+						delete priv;
+						return instead(pItem);
+					}
+					case DATA_ARRAY: {
+						_Data_Array* pvec;
+						pself.get_data(pvec);
+						if (pvec->size() != 2)
+							throw show_err("访问矩阵元素的下标个数错误！");
+						Num_Type poffi;
+						Num_Type poffj;
+						pvec->at(0).get_data(poffi);
+						pvec->at(1).get_data(poffj);
+						pItem = new Node_Elem_Num(pmat, Node_Elem_Num::CMATRIX_2, size_t(poffi), size_t(poffj));
+						delete priv;
+						return instead(pItem);
+					}
+					default:
+						throw show_err("下标里混进了奇怪的东西，无法解析为下标");
+					}
+				}
+				default:
+					throw show_err("试图使用坐标访问非数组和非矩阵节点！");
+				}
+			}
+		}
 		return use_list.front()->change_master(get_master(), get_iter());
 	}
 	else
@@ -871,7 +969,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Comma_Operator::operation(
 	}
 	move_to_package(*next(comma_iter));//逗号后的元素移到包内
 	if (next(comma_iter) == get_master()->end()) {
-		return instead(new Node_Num(Base_Data(pPackage)));
+		return instead(new Noraml_Num(Base_Data(pPackage)));
 	}
 	comma_iter++;//尝试看看后面是否还有逗号
 	while ((*comma_iter)->get_item() == COMMA_OPRERATOR) {
@@ -886,7 +984,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Comma_Operator::operation(
 		comma_iter++;
 		delete *priv(comma_iter);
 	}
-	return instead(new Node_Num(Base_Data(pPackage)));
+	return instead(new Noraml_Num(Base_Data(pPackage)));
 }
 
 inter::Interpreter::_My_List_Iter inter::Interpreter::Static_Function::operation(void) {
@@ -898,7 +996,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Static_Function::operation
 	Base_Item* node_next = *(++get_iter());
 	node_next->get_data(a);
 	auto&& res = singlevar_func[num].func(a);
-	use_iter = instead(new Node_Num(res));
+	use_iter = instead(new Noraml_Num(res));
 	delete node_next;
 	return use_iter;
 }
@@ -913,7 +1011,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Unary_Operator::operation(
 	Base_Item* node_priv = *(--get_iter());
 	node_priv->get_data(a);
 	auto&& res = unary_func[num].func(a);
-	use_iter = instead(new Node_Num(res));
+	use_iter = instead(new Noraml_Num(res));
 	delete node_priv;
 	return use_iter;
 }
@@ -973,6 +1071,17 @@ bool inter::Interpreter::Variable_Map::find_in(const Str_Type & pstr, Base_Data 
 		return false;
 }
 
+bool inter::Interpreter::Variable_Map::find_in(void * paddr, _My_Map_Iter & pIter)
+{
+	auto &&ret = var_p_map.find(paddr);
+	if (ret != var_p_map.end()) {
+		pIter = ret->second;
+		return true;
+	}
+	else
+		return false;
+}
+
 
 
 /**
@@ -987,30 +1096,29 @@ inline void inter::Interpreter::Variable_Map::clear(void) {
 }
 
 inter::Interpreter::_My_List_Iter inter::Interpreter::Assignment_Operator::operation(void) {
-	_My_List_Iter use_iter;
 	if (this == get_master()->front() || this == get_master()->back())//保证两边有元素
 		throw show_err("赋值运算符使用错误！");
 	Base_Item* node_priv = *(--get_iter());
 	Base_Item* node_next = *(++get_iter());
-	Base_Data pnum;
-	node_next->get_data(pnum);
+	Base_Data pnext_num;
+	node_next->get_data(pnext_num);
 	if (node_priv->get_item() == UNDEF_NAME) {//创建新的变量
 		Str_Type pstr;
 		node_priv->get_data(pstr);
-		auto&& ret = base_map->push_new(pstr, pnum);//新增一个节点
-		use_iter = instead(new Node_Num(ret));
+		base_map->push_new(pstr, pnext_num);//新增一个节点
+	}
+	else if (node_priv->get_item() == NUM_ELEME) {
+		reinterpret_cast<Node_Elem_Num*>(node_priv)->assign(pnext_num, base_map);
 	}
 	else {//对变量赋值
-		Base_Data priv_num, next_num;
+		Base_Data priv_num;
 		void* priv_data;
 		node_priv->get_data(priv_num);				//获取左值的变量
 		priv_num.get_data(priv_data);				//获取左值的变量的源地址
-		auto&& ret = base_map->data_change(priv_data, next_num);
-		use_iter = instead(new Node_Num(ret));//用影子重建一个新节点替换
+		base_map->data_change(priv_data, pnext_num);
 	}
 	delete node_priv;
-	delete node_next;
-	return use_iter;
+	return ++get_iter();
 }
 
 inter::Interpreter& inter::Interpreter::operator=(const inter::Interpreter& pInter) {//其实没什么用，默认的就ok
@@ -1106,7 +1214,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::SQ_Bracket_Operator::opera
 		for (size_t i = 0; i < buf_size; i++) {
 			pbuf[i] = num_buf[i];
 		}
-		use_iter = instead(new Node_Num(Base_Data(Matrix_Type(row_num, col_finalnum, pbuf, false))));
+		use_iter = instead(new Noraml_Num(Base_Data(Matrix_Type(row_num, col_finalnum, pbuf, false))));
 	}
 	else {
 		size_t buf_size = complex_buf.size();
@@ -1114,7 +1222,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::SQ_Bracket_Operator::opera
 		for (size_t i = 0; i < buf_size; i++) {
 			pbuf[i] = complex_buf[i];
 		}
-		use_iter = instead(new Node_Num(Base_Data(Cmatrix_Type(row_num, col_finalnum, pbuf, false))));
+		use_iter = instead(new Noraml_Num(Base_Data(Cmatrix_Type(row_num, col_finalnum, pbuf, false))));
 	}
 	return use_iter;
 }
