@@ -780,7 +780,6 @@ inter::Interpreter::Interpreter(const Interpreter & pInter) {//∆‰ µ√ª ≤√¥”√£¨ƒ¨»
 }
 
 
-//«ÛΩ‚±Ì¥Ô Ω£¨÷ß≥÷
 bool inter::Interpreter::slove(const Str_Type & str) {
 	_My_List buf_list;
 	try {
@@ -810,7 +809,6 @@ bool inter::Interpreter::slove(const Str_Type & str) {
 * @param Œﬁ
 * @return Œﬁ
 */
-
 void inter::Interpreter::clear() {
 	main_var.clear();
 }

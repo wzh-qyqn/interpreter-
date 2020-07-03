@@ -3,6 +3,7 @@
 #define __INTERPRETER_ERR_H__
 #include <exception>
 #include <string>
+//使用的异常
 namespace inter {
 	class inter_error :public std::exception {
 	public:

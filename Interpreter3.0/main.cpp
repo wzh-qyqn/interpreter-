@@ -201,6 +201,7 @@ int main(int argc, char* argv[])
     return 0;
 }
 #else
+//¾ØÕóÀàµÄ²âÊÔ
 #include "matix.h"
 template<typename T>
 std::ostream& operator<< (std::ostream& os, const inter::Matrix<T>& pmat) {
