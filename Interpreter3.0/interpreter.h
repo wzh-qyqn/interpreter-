@@ -251,9 +251,9 @@ private:
 		Base_Data store_num;
 	public:
 		Node_Num(_My_List* baselist, Item_Type itype, Base_Data&& usenum) :
-			Base_Item(baselist,BASE_NUM,itype,0), store_num(usenum){}
+			Base_Item(baselist,BASE_NUM,itype,0), store_num(std::move(usenum)){}
 		Node_Num(Item_Type itype,Base_Data&&usenum) :
-			Base_Item(BASE_NUM, itype, 0), store_num(usenum) {}
+			Base_Item(BASE_NUM, itype, 0), store_num(std::move(usenum)) {}
 		Node_Num(_My_List* baselist, Item_Type itype, const Base_Data& usenum) :
 			Base_Item(baselist, BASE_NUM, itype, 0), store_num(usenum) {};
 		Node_Num(Item_Type itype,const Base_Data& usenum) :
@@ -484,7 +484,7 @@ private:
 		}
 		void clear(void);												//清空变量表
     };
-	class Node_Elem_Num :public Node_Empty {//改
+	class Node_Elem_Num :public Node_Num {//改
 	public:
 		enum Elem_Type {
 			ARRAY_1,
@@ -496,17 +496,25 @@ private:
 	private:
 		const size_t xpos;
 		const size_t ypos;
-		void* const paddr;
+		void* paddr;
 		const Elem_Type type;
 	public:
 		Node_Elem_Num(void* addr, Elem_Type ptype, size_t xupos, size_t yupos = 0) :
-			Node_Empty(NUM_ELEME, 0), xpos(xupos), ypos(yupos), type(ptype), paddr(addr) {}
+			Node_Num(NUM_ELEME,Base_Data()), xpos(xupos), ypos(yupos), type(ptype), paddr(addr) {}
 		Node_Elem_Num(_My_List* baselist, void* addr, Elem_Type ptype, size_t xupos, size_t yupos = 0) :
-			Node_Empty(baselist, NUM_ELEME, 0), xpos(xupos), ypos(yupos), type(ptype), paddr(addr) {};
+			Node_Num(baselist, NUM_ELEME, Base_Data()), xpos(xupos), ypos(yupos), type(ptype), paddr(addr) {};
+		Node_Elem_Num(Base_Data&& pdata, Elem_Type ptype, size_t xupos, size_t yupos = 0) :
+			Node_Num(NUM_ELEME, std::move(pdata)), xpos(xupos), ypos(yupos), type(ptype){
+			store_num.get_data(paddr);
+		}
+		Node_Elem_Num(_My_List* baselist, Base_Data&& pdata, Elem_Type ptype, size_t xupos, size_t yupos = 0) :
+			Node_Num(baselist, NUM_ELEME, std::move(pdata)), xpos(xupos), ypos(yupos), type(ptype){
+			store_num.get_data(paddr);
+		};
 		void assign(Base_Data& num_data, Variable_Map* pmap) {
 			switch (type) {
 			case ARRAY_1:
-				reinterpret_cast<_Data_Array*>(paddr)->at(xpos) = num_data;
+				reinterpret_cast<_Data_Array*>(paddr)->at(xpos) = num_data.get_real();
 				break;
 			case MATRIX_1: {
 				const auto& lmat = reinterpret_cast<Matrix_Type*>(paddr);

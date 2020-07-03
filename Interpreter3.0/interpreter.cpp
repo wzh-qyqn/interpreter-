@@ -863,7 +863,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operatio
 				use_list.front()->get_data(pself);
 				priv->get_data(pbuf);
 				switch (pbuf.get_type()) {
-				case DATA_ARRAY: {//
+				case DATA_ARRAY: {
 					_Data_Array* pvec;
 					Base_Item* pItem;
 					Num_Type poffset;
@@ -872,7 +872,10 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operatio
 					if (size_t(poffset) >= pvec->size()) {
 						throw show_err("数组元素访问错误，可访问范围：0~", pvec->size()-1, ",试图访问的坐标：", size_t(poffset));
 					}
-					pItem = new Node_Elem_Num(pvec, Node_Elem_Num::ARRAY_1, size_t(poffset));
+					if (pbuf.is_shadow())
+						pItem = new Node_Elem_Num(pvec, Node_Elem_Num::ARRAY_1, size_t(poffset));
+					else
+						pItem = new Node_Elem_Num(std::move(pbuf), Node_Elem_Num::ARRAY_1, size_t(poffset));
 					delete priv;
 					return instead(pItem);
 				}
@@ -887,7 +890,10 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operatio
 						if (size_t(poffset) >= pmat->row()) {
 							throw show_err("矩阵行向量访问错误，可访问范围：0~", pmat->row()-1, ",试图访问的坐标：", size_t(poffset));
 						}
-						pItem = new Node_Elem_Num(pmat, Node_Elem_Num::MATRIX_1, size_t(poffset));
+						if(pbuf.is_shadow())
+							pItem = new Node_Elem_Num(pmat, Node_Elem_Num::MATRIX_1, size_t(poffset));
+						else
+							pItem = new Node_Elem_Num(std::move(pbuf),Node_Elem_Num::MATRIX_1, size_t(poffset));
 						delete priv;
 						return instead(pItem);
 					}
@@ -900,7 +906,10 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operatio
 						Num_Type poffj;
 						pvec->at(0).get_data(poffi);
 						pvec->at(1).get_data(poffj);
-						pItem = new Node_Elem_Num(pmat, Node_Elem_Num::MATRIX_2, size_t(poffi), size_t(poffj));
+						if (pbuf.is_shadow())
+							pItem = new Node_Elem_Num(pmat, Node_Elem_Num::MATRIX_2, size_t(poffi), size_t(poffj));
+						else
+							pItem = new Node_Elem_Num(std::move(pbuf), Node_Elem_Num::MATRIX_2, size_t(poffi), size_t(poffj));
 						delete priv;
 						return instead(pItem);
 					}
@@ -919,7 +928,10 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operatio
 						if (size_t(poffset) >= pmat->row()) {
 							throw show_err("矩阵行向量访问错误，可访问范围：0~", pmat->row() - 1, ",试图访问的坐标：", size_t(poffset));
 						}
-						pItem = new Node_Elem_Num(pmat, Node_Elem_Num::CMATRIX_1, size_t(poffset));
+						if (pbuf.is_shadow())
+							pItem = new Node_Elem_Num(pmat, Node_Elem_Num::CMATRIX_1, size_t(poffset));
+						else
+							pItem = new Node_Elem_Num(std::move(pbuf), Node_Elem_Num::CMATRIX_1, size_t(poffset));
 						delete priv;
 						return instead(pItem);
 					}
@@ -932,7 +944,10 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operatio
 						Num_Type poffj;
 						pvec->at(0).get_data(poffi);
 						pvec->at(1).get_data(poffj);
-						pItem = new Node_Elem_Num(pmat, Node_Elem_Num::CMATRIX_2, size_t(poffi), size_t(poffj));
+						if (pbuf.is_shadow())
+							pItem = new Node_Elem_Num(pmat, Node_Elem_Num::CMATRIX_2, size_t(poffi), size_t(poffj));
+						else
+							pItem = new Node_Elem_Num(std::move(pbuf), Node_Elem_Num::CMATRIX_2, size_t(poffi), size_t(poffj));
 						delete priv;
 						return instead(pItem);
 					}
