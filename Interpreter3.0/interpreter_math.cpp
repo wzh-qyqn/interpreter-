@@ -483,156 +483,11 @@ static inline Cmatrix_Type rmod(const Cmatrix_Type* a, const bool& b) {
 static inline Cmatrix_Type rmod(const bool& a, const Cmatrix_Type* b) {
 	throw show_err("暂不支持矩阵求余运算");
 }
-//比大小
-static inline bool	rgreater(const Num_Type& a, const Num_Type& b) {
-	return a > b;
+Use_Data urgreater(const Use_Data& a, const Use_Data& b) {
+	return Use_Data(!(a < b));
 }
-static inline bool	rgreater(const Num_Type& a, const Complex_Type& b) {
-	throw show_err("复数比大小无意义！");
-}
-static inline bool	rgreater(const Num_Type& a, const bool& b) {
-	return a > Num_Type(b);
-}
-static inline bool	rgreater(const Complex_Type& a, const Num_Type& b) {
-	throw show_err("复数比大小无意义！");
-}
-static inline bool	rgreater(const Complex_Type& a, const Complex_Type& b) {
-	throw show_err("复数比大小无意义！");
-}
-static inline bool	rgreater(const Complex_Type& a, const bool& b) {
-	throw show_err("复数比大小无意义！");
-}
-static inline bool	rgreater(const bool& a, const Num_Type& b) {
-	return Num_Type(a) > b ;
-}
-static inline bool	rgreater(const bool& a, const Complex_Type& b) {
-	throw show_err("未定义复数取余");
-}
-static inline bool	rgreater(const bool& a, const bool& b) {
-	return a > b;
-}
-static inline Matrix_Type rgreater(const Matrix_Type* a, const Matrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rgreater(const Cmatrix_Type* a, const Matrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rgreater(const Matrix_Type* a, const Cmatrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rgreater(const Cmatrix_Type* a, const Cmatrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Matrix_Type rgreater(const Matrix_Type* a, const Num_Type& b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Matrix_Type rgreater(const Num_Type& a, const Matrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rgreater(const Matrix_Type* a, const Complex_Type& b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rgreater(const Complex_Type& a, const Matrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Matrix_Type rgreater(const Matrix_Type* a, const bool& b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Matrix_Type rgreater(const bool& a, const Matrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rgreater(const Cmatrix_Type* a, const Num_Type& b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rgreater(const Num_Type& a, const Cmatrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rgreater(const Cmatrix_Type* a, const Complex_Type& b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rgreater(const Complex_Type& a, const Cmatrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rgreater(const Cmatrix_Type* a, const bool& b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rgreater(const bool& a, const Cmatrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline bool	rless(const Num_Type& a, const Num_Type& b) {
-	return a < b;
-}
-static inline bool	rless(const Num_Type& a, const Complex_Type& b) {
-	throw show_err("复数比大小无意义！");
-}
-static inline bool	rless(const Num_Type& a, const bool& b) {
-	return a < Num_Type(b);
-}
-static inline bool	rless(const Complex_Type& a, const Num_Type& b) {
-	throw show_err("复数比大小无意义！");
-}
-static inline bool	rless(const Complex_Type& a, const Complex_Type& b) {
-	throw show_err("复数比大小无意义！");
-}
-static inline bool	rless(const Complex_Type& a, const bool& b) {
-	throw show_err("复数比大小无意义！");
-}
-static inline bool	rless(const bool& a, const Num_Type& b) {
-	return Num_Type(a) < b;
-}
-static inline bool	rless(const bool& a, const Complex_Type& b) {
-	throw show_err("未定义复数取余");
-}
-static inline bool	rless(const bool& a, const bool& b) {
-	return a < b;
-}
-static inline Matrix_Type rless(const Matrix_Type* a, const Matrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rless(const Cmatrix_Type* a, const Matrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rless(const Matrix_Type* a, const Cmatrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rless(const Cmatrix_Type* a, const Cmatrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Matrix_Type rless(const Matrix_Type* a, const Num_Type& b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Matrix_Type rless(const Num_Type& a, const Matrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rless(const Matrix_Type* a, const Complex_Type& b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rless(const Complex_Type& a, const Matrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Matrix_Type rless(const Matrix_Type* a, const bool& b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Matrix_Type rless(const bool& a, const Matrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rless(const Cmatrix_Type* a, const Num_Type& b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rless(const Num_Type& a, const Cmatrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rless(const Cmatrix_Type* a, const Complex_Type& b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rless(const Complex_Type& a, const Cmatrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rless(const Cmatrix_Type* a, const bool& b) {
-	throw show_err("暂不支持矩阵比较运算");
-}
-static inline Cmatrix_Type rless(const bool& a, const Cmatrix_Type* b) {
-	throw show_err("暂不支持矩阵比较运算");
+Use_Data urless(const Use_Data& a, const Use_Data& b) {
+	return Use_Data(a <b);
 }
 Num_Type inline imag(const Num_Type& a) {
     return 0;
@@ -710,6 +565,398 @@ static inline Cmatrix_Type rtranse(Cmatrix_Type* a) {
 	return a->transpos();
 }
 
+static inline Num_Type rsize(Interpreter::_Data_Array* pvec) {
+	return Num_Type(pvec->size());
+}
+static inline Interpreter::_Data_Array rsort(Interpreter::_Data_Array* pvec) {
+	Interpreter::_Data_Array buf_pvec(*pvec);
+	sort(buf_pvec.begin(), buf_pvec.end());
+	return buf_pvec;
+}
+
+//强制转换为bool
+static inline bool rbool(const bool a) {
+	return a;
+}
+static inline bool rbool(const Num_Type a) {
+	return a==0 ?false:true;
+}
+static inline bool rbool(const Complex_Type a) {
+	return a == Complex_Type(0) ? false : true;
+}
+static inline bool rbool(const Matrix_Type* a) {
+	return *a == Matrix_Type(a->row(), a->col()) ? false : true;
+}
+static inline bool rbool(const Cmatrix_Type* a) {
+	return *a == Cmatrix_Type(a->row(), a->col()) ? false : true;
+}
+bool rbool(const Use_Data& a) {
+	switch (a.get_type()) {
+	case Interpreter::DATA_BOOL: {
+		bool a1;
+		a.get_data(a1);
+		return rbool(a1);
+	}
+	case Interpreter::DATA_DOUBLE: {
+		Num_Type a1;
+		a.get_data(a1);
+		return rbool(a1);
+	}
+	case Interpreter::DATA_CMATRIX: {
+		Matrix_Type* a1;
+		a.get_data(a1);
+		return rbool(a1);
+	}
+	case Interpreter::DATA_COMPLEX: {
+		Complex_Type a1;
+		a.get_data(a1);
+		return rbool(a1);
+	}
+	case Interpreter::DATA_MATRIX: {
+		Matrix_Type* a1;
+		a.get_data(a1);
+		return rbool(a1);
+	}
+	case Interpreter::DATA_ARRAY:
+		throw show_err("转化失败，数组无法转化为bool值");
+	default: 
+		throw show_err("转化失败，类型错误");
+	}
+
+}
+static inline Interpreter::_Data_Array rbool(const Interpreter::_Data_Array* a) {
+	Interpreter::_Data_Array parray;
+	for (size_t i = 0; i < a->size(); i++) {
+		parray.push_back(Use_Data(rbool(a->at(i))));
+	}
+	return parray;
+}
+Use_Data urbool(const Use_Data& a) {
+	if (a.get_type() == Interpreter::DATA_ARRAY) {
+		Interpreter::_Data_Array* a1;
+		a.get_data(a1);
+		return Use_Data(rbool(a1));
+	}
+	else
+		return Use_Data(rbool(a));
+}
+
+//强制转换为num
+static inline Num_Type rnum(const bool a) {
+	return Num_Type(a);
+}
+static inline Num_Type rnum(const Num_Type a) {
+	return a;
+}
+Num_Type rnum(const Use_Data& a) {
+	switch (a.get_type()) {
+	case Interpreter::DATA_BOOL: {
+		bool a1;
+		a.get_data(a1);
+		return rnum(a1);
+	}
+	case Interpreter::DATA_DOUBLE: {
+		Num_Type a1;
+		a.get_data(a1);
+		return rnum(a1);
+	}
+	case Interpreter::DATA_CMATRIX:
+		throw show_err("转化失败，矩阵无法转变为数字");
+	case Interpreter::DATA_COMPLEX:
+		throw show_err("转化失败，复数无法转化为实数");
+	case Interpreter::DATA_MATRIX:
+		throw show_err("转化失败，矩阵无法转变为数字");
+	case Interpreter::DATA_ARRAY:
+		throw show_err("转化失败，数组无法转化为单个元素");
+	default:
+		throw show_err("转化失败，类型错误");
+	}
+}
+static inline Interpreter::_Data_Array rnum(const Interpreter::_Data_Array* a) {
+	Interpreter::_Data_Array parray;
+	for (size_t i = 0; i < a->size(); i++) {
+		parray.push_back(Use_Data(rnum(a->at(i))));
+	}
+	return parray;
+}
+Use_Data urnum(const Use_Data& a) {
+	if (a.get_type() == Interpreter::DATA_ARRAY) {
+		Interpreter::_Data_Array* a1;
+		a.get_data(a1);
+		return Use_Data(rnum(a1));
+	}
+	else
+		return Use_Data(rnum(a));
+}
+
+//强制转化为复数
+static inline Complex_Type rcomp(const bool a) {
+	return Complex_Type(a);
+}
+static inline Complex_Type rcomp(const Num_Type a) {
+	return Complex_Type(a);
+}
+static inline Complex_Type rcomp(const Complex_Type a) {
+	return Complex_Type(a);
+}
+
+Complex_Type rcomp(const Use_Data& a) {
+	switch (a.get_type()) {
+	case Interpreter::DATA_BOOL: {
+		bool a1;
+		a.get_data(a1);
+		return rcomp(a1);
+	}
+	case Interpreter::DATA_DOUBLE: {
+		Num_Type a1;
+		a.get_data(a1);
+		return rcomp(a1);
+	}
+	case Interpreter::DATA_CMATRIX: {
+		throw show_err("转化失败，复数矩阵无法转变为复数");
+	}
+	case Interpreter::DATA_COMPLEX: {
+		Complex_Type a1;
+		a.get_data(a1);
+		return rcomp(a1);
+	}
+	case Interpreter::DATA_MATRIX: {
+		throw show_err("转化失败，矩阵无法转变为复数");
+	}
+	case Interpreter::DATA_ARRAY:
+		throw show_err("转化失败，数组无法转化为复数");
+	default:
+		throw show_err("转化失败，类型错误");
+	}
+}
+static inline Interpreter::_Data_Array rcomp(const Interpreter::_Data_Array* a) {
+	Interpreter::_Data_Array parray;
+	for (size_t i = 0; i < a->size(); i++) {
+		parray.push_back(Use_Data(rcomp(a->at(i))));
+	}
+	return parray;
+}
+Use_Data urcomp(const Use_Data& a) {
+	if (a.get_type() == Interpreter::DATA_ARRAY) {
+		Interpreter::_Data_Array* a1;
+		a.get_data(a1);
+		return Use_Data(rcomp(a1));
+	}
+	else
+		return Use_Data(rcomp(a));
+}
+//强制转化为矩阵
+static inline Matrix_Type rmatrix(const bool a) {
+	return Matrix_Type(a);
+}
+static inline Matrix_Type rmatrix(const Num_Type a) {
+	return Matrix_Type(a);
+}
+static inline Matrix_Type rmatrix(const Matrix_Type* a) {
+	return *a;
+}
+Matrix_Type rmatrix(const Use_Data& a) {
+	switch (a.get_type()) {
+	case Interpreter::DATA_BOOL: {
+		bool a1;
+		a.get_data(a1);
+		return rmatrix(a1);
+	}
+	case Interpreter::DATA_DOUBLE: {
+		Num_Type a1;
+		a.get_data(a1);
+		return rmatrix(a1);
+	}
+	case Interpreter::DATA_MATRIX: {
+		Matrix_Type* a1;
+		a.get_data(a1);
+		return rmatrix(a1);
+	}
+	case Interpreter::DATA_CMATRIX:
+		throw show_err("转化失败，复数矩阵无法转换为实数矩阵");
+	case Interpreter::DATA_COMPLEX:
+		throw show_err("转化失败，复数无法转换为实数矩阵");
+	case Interpreter::DATA_ARRAY:
+		throw show_err("转化失败，数组无法转化为单个元素");
+	default:
+		throw show_err("转化失败，类型错误");
+	}
+}
+static inline Matrix_Type rmatrix(const Interpreter::_Data_Array* a) {
+	const size_t& data_size = a->size();
+	Num_Type* pbuf = new Num_Type[data_size];
+	try {
+		for (size_t i = 0; i < data_size; i++) {
+			pbuf[i] = rnum(a->at(i));
+		}
+	}
+	catch (const inter::inter_error& err) {
+		delete[] pbuf;
+		throw err;
+	}
+	return Matrix_Type(1, data_size, pbuf, false);
+}
+Use_Data urmatrix(const Use_Data& a) {
+	if (a.get_type() == Interpreter::DATA_ARRAY) {
+		Interpreter::_Data_Array* a1;
+		a.get_data(a1);
+		return Use_Data(rmatrix(a1));
+	}
+	else
+		return Use_Data(rmatrix(a));
+}
+
+//强制复数矩阵
+static inline Cmatrix_Type rcmatrix(const bool a) {
+	return Cmatrix_Type(a);
+}
+static inline Cmatrix_Type rcmatrix(const Num_Type a) {
+	return Cmatrix_Type(a);
+}
+static inline Cmatrix_Type rcmatrix(const Complex_Type a) {
+	return Cmatrix_Type(a);
+}
+static inline Cmatrix_Type rcmatrix(const Matrix_Type* a) {
+	return Num_To_Complex(*a);
+}
+static inline Cmatrix_Type rcmatrix(const Cmatrix_Type* a) {
+	return *a;
+}
+Cmatrix_Type rcmatrix(const Use_Data& a) {
+	switch (a.get_type()) {
+	case Interpreter::DATA_BOOL: {
+		bool a1;
+		a.get_data(a1);
+		return rcmatrix(a1);
+	}
+	case Interpreter::DATA_DOUBLE: {
+		Num_Type a1;
+		a.get_data(a1);
+		return rcmatrix(a1);
+	}
+	case Interpreter::DATA_MATRIX: {
+		Matrix_Type* a1;
+		a.get_data(a1);
+		return rcmatrix(a1);
+	}
+	case Interpreter::DATA_CMATRIX: {
+		Cmatrix_Type* a1;
+		a.get_data(a1);
+		return rcmatrix(a1);
+	}
+	case Interpreter::DATA_COMPLEX: {
+		Complex_Type a1;
+		a.get_data(a1);
+		return rcmatrix(a1);
+	}
+	case Interpreter::DATA_ARRAY:
+		throw show_err("转化失败，数组无法转化为单个元素");
+	default:
+		throw show_err("转化失败，类型错误");
+	}
+}
+static inline Cmatrix_Type rcmatrix(const Interpreter::_Data_Array* a) {
+	Complex_Type* pbuf = new Complex_Type[a->size()];
+	try {
+		for (size_t i = 0; i < a->size(); i++) {
+			pbuf[i] = rcomp(a->at(i));
+		}
+	}
+	catch (const inter::inter_error& err) {
+		delete[] pbuf;
+		throw err;
+	}
+	return Cmatrix_Type(1, a->size(), pbuf, false);
+}
+Use_Data urcmatrix(const Use_Data& a) {
+	if (a.get_type() == Interpreter::DATA_ARRAY) {
+		Interpreter::_Data_Array* a1;
+		a.get_data(a1);
+		return Use_Data(rcmatrix(a1));
+	}
+	else
+		return Use_Data(rcmatrix(a));
+}
+
+//强制转换为数组
+static inline Interpreter::_Data_Array rarray(const bool a) {
+	Interpreter::_Data_Array pvec;
+	pvec.push_back(Use_Data(a));
+	return pvec;
+}
+static inline Interpreter::_Data_Array rarray(const Num_Type a) {
+	Interpreter::_Data_Array pvec;
+	pvec.push_back(Use_Data(a));
+	return pvec;
+}
+static inline Interpreter::_Data_Array rarray(const Complex_Type a) {
+	Interpreter::_Data_Array pvec;
+	pvec.push_back(Use_Data(a));
+	return pvec;
+}
+static inline Interpreter::_Data_Array rarray(const Matrix_Type* a) {
+	Interpreter::_Data_Array pvec;
+	for (size_t i = 0; i < a->row(); i++) {
+		for (size_t j = 0; j < a->col(); j++) {
+			pvec.push_back(Use_Data(a->loc(i, j)));
+		}
+	}
+	return pvec;
+}
+static inline Interpreter::_Data_Array rarray(const Cmatrix_Type* a) {
+	Interpreter::_Data_Array pvec;
+	for (size_t i = 0; i < a->row(); i++) {
+		for (size_t j = 0; j < a->col(); j++) {
+			pvec.push_back(Use_Data(a->loc(i, j)));
+		}
+	}
+	return pvec;
+}
+static inline Interpreter::_Data_Array rarray(const Interpreter::_Data_Array* a) {
+	return *a;
+}
+
+Interpreter::_Data_Array rarray(const Use_Data& a) {
+	switch (a.get_type()) {
+	case Interpreter::DATA_BOOL: {
+		bool a1;
+		a.get_data(a1);
+		return rarray(a1);
+	}
+	case Interpreter::DATA_DOUBLE: {
+		Num_Type a1;
+		a.get_data(a1);
+		return rarray(a1);
+	}
+	case Interpreter::DATA_CMATRIX: {
+		Matrix_Type* a1;
+		a.get_data(a1);
+		return rarray(a1);
+	}
+	case Interpreter::DATA_COMPLEX: {
+		Complex_Type a1;
+		a.get_data(a1);
+		return rarray(a1);
+	}
+	case Interpreter::DATA_MATRIX: {
+		Matrix_Type* a1;
+		a.get_data(a1);
+		return rarray(a1);
+	}
+	case Interpreter::DATA_ARRAY: {
+		Interpreter::_Data_Array* a1;
+		a.get_data(a1);
+		return rarray(a1);
+	}
+	default: {
+		throw show_err("转化失败，类型错误");
+	}
+	}
+}
+Use_Data urarry(const Use_Data& a) {
+	return Use_Data(rarray(a));
+}
+
 #define MATRIX_FUNCTION_DECLARE(name)	Use_Data m##name##(const Use_Data& a){\
 											switch(a.get_type()){\
 											case Interpreter::DATA_MATRIX:{\
@@ -729,10 +976,12 @@ static inline Cmatrix_Type rtranse(Cmatrix_Type* a) {
 #define ARRAY_FUNCTION_DECLARE(name)    Use_Data a##name##(const Use_Data& a){\
 											switch(a.get_type()){\
 											case Interpreter::DATA_ARRAY:{\
-												Matrix_Type* a1;\
+												Interpreter::_Data_Array* a1;\
 												a.get_data(a1);\
 												return Use_Data(name##(a1));\
 											}\
+											default:\
+												throw show_err("函数不支持其类型"); \
 											}\
 										}
 #define SINGLEVAR_FUNCTION_DECLARE(name) Use_Data u##name##(const Use_Data& a) {\
@@ -1078,8 +1327,6 @@ BINARY_FUNCTION_DECLARE(rmultiply)
 BINARY_FUNCTION_DECLARE(rdivision)
 BINARY_FUNCTION_DECLARE(rmod)
 BINARY_FUNCTION_DECLARE(rpow)
-BINARY_FUNCTION_DECLARE(rless)
-BINARY_FUNCTION_DECLARE(rgreater)
 SINGLEVAR_FUNCTION_DECLARE(rtgamma)
 
 MATRIX_FUNCTION_DECLARE(rdet)
@@ -1087,6 +1334,18 @@ MATRIX_FUNCTION_DECLARE(rreserve)
 MATRIX_FUNCTION_DECLARE(rrow)
 MATRIX_FUNCTION_DECLARE(rtranse)
 MATRIX_FUNCTION_DECLARE(rcol)
+
+ARRAY_FUNCTION_DECLARE(rsize)
+ARRAY_FUNCTION_DECLARE(rsort)
+
+static inline Use_Data rsum(Interpreter::_Data_Array* pvec) {
+	Use_Data pdata(Num_Type(0));
+	for (size_t i = 0; i < pvec->size(); i++) {
+		pdata = uraddition(pdata, pvec->at(i));
+	}
+	return pdata;
+}
+ARRAY_FUNCTION_DECLARE(rsum)
 }
 
 const std::array<Interpreter::Binary_Func, Interpreter::binary_func_num>Interpreter::binary_func = {
@@ -1121,12 +1380,22 @@ const std::array<Interpreter::SingleVar_Func, Interpreter::singlevar_func_num>In
 	"det"	,mrdet,
 	"reser" ,mrreserve,
 	"row"	,mrrow,
-	"transe",mrtranse,
-	"col"	,mrcol
+	"trans" ,mrtranse,
+	"col"	,mrcol,
+	"size"	,arsize,
+	"sort"	,arsort,
+	"sum"	,arsum,
+	"bool"	,urbool,
+	"double",urnum,
+	"complex",urcomp,
+	"array"	,urarry,
+	"matrix",urmatrix,
+	"cmatrix",urcmatrix
 };
 const std::array<Interpreter::Unary_Func, \
     Interpreter::unary_func_num>Interpreter::unary_func = {
     '!',8,urtgamma,
+	'`',8,mrtranse,
 };
 const std::array<Interpreter::Const_Num, \
     Interpreter::const_BaseData_num>Interpreter::const_BaseData = {

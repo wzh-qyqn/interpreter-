@@ -178,6 +178,49 @@ inter::Interpreter::Base_Data::Base_Data(const Base_Data & pData) {
 	}
 }
 
+bool inter::Interpreter::Base_Data::operator<(const Base_Data &pdata)const{
+	switch (get_type()) {
+	case Interpreter::DATA_DOUBLE: {
+		Num_Type ldata;
+		get_data(ldata);
+		switch (pdata.get_type()) {
+		case Interpreter::DATA_DOUBLE: {
+			Num_Type rdata;
+			pdata.get_data(rdata);
+			return ldata < rdata;
+		}
+		case Interpreter::DATA_BOOL: {
+			bool rdata;
+			pdata.get_data(rdata);
+			return ldata < Num_Type(rdata);
+		}
+		default:
+			throw show_err("数据类型不支持比较大小");
+		}
+	case Interpreter::DATA_BOOL: {
+		bool ldata;
+		get_data(ldata);
+		switch (pdata.get_type()) {
+		case Interpreter::DATA_DOUBLE: {
+			Num_Type rdata;
+			pdata.get_data(rdata);
+			return Num_Type(ldata) < rdata;
+		}
+		case Interpreter::DATA_BOOL: {
+			bool rdata;
+			pdata.get_data(rdata);
+			return Num_Type(ldata) < Num_Type(rdata);
+		}
+		default:
+			throw show_err("数据类型不支持比较大小");
+		}
+	}
+	default:
+		throw show_err("数据类型不支持比较大小");
+	}
+	}
+}
+
 inter::Interpreter::Base_Data::Base_Data(Base_Data && pData) {
 	d_type = pData.d_type;
 	is_own = pData.is_own;
@@ -1242,3 +1285,147 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::SQ_Bracket_Operator::opera
 	return use_iter;
 }
 
+void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Map * pmap) {
+	switch (type) {
+	case ARRAY_1:
+		reinterpret_cast<_Data_Array*>(paddr)->at(xpos) = num_data.get_real();
+		break;
+	case MATRIX_1: {
+		const auto& lmat = reinterpret_cast<Matrix_Type*>(paddr);
+		if (num_data.get_type() == DATA_MATRIX) {
+			Matrix_Type* rmat;
+			num_data.get_data(rmat);
+			if (rmat->col() != lmat->col()) {
+				throw show_err("行向量赋值失败，维数不统一");
+			}
+			for (size_t i = 0; i < rmat->col(); i++) {
+				lmat->loc(xpos, i) = rmat->loc(0, i);
+			}
+		}
+		else {
+			Cmatrix_Type* rmat;
+			num_data.get_data(rmat);
+			if (rmat->col() != lmat->col()) {
+				throw show_err("行向量赋值失败，维数不统一");
+			}
+			Complex_Type* pbuf = new Complex_Type[lmat->col()*lmat->row()];
+			for (size_t i = 0; i < lmat->col()*lmat->row(); i++) {
+				pbuf[i] = lmat->data()[i];
+			}
+			for (size_t i = 0; i < lmat->col(); i++) {
+				pbuf[xpos*lmat->col() + i] = rmat->loc(0, i);
+			}
+			pmap->data_change(paddr, Base_Data(Cmatrix_Type(lmat->row(), lmat->col(), pbuf, false)));
+
+		}
+		break;
+	}
+	case CMATRIX_1: {
+		const auto& lmat = reinterpret_cast<Cmatrix_Type*>(paddr);
+		if (num_data.get_type() == DATA_MATRIX) {
+			Matrix_Type* rmat;
+			num_data.get_data(rmat);
+			if (rmat->col() != lmat->col()) {
+				throw show_err("行向量赋值失败，维数不统一");
+			}
+			for (size_t i = 0; i < rmat->col(); i++) {
+				lmat->loc(xpos, i) = rmat->loc(0, i);
+			}
+		}
+		else {
+			Cmatrix_Type* rmat;
+			num_data.get_data(rmat);
+			if (rmat->col() != lmat->col()) {
+				throw show_err("行向量赋值失败，维数不统一");
+			}
+			for (size_t i = 0; i < rmat->col(); i++) {
+				lmat->loc(xpos, i) = rmat->loc(0, i);
+			}
+		}
+		break;
+	}
+	case MATRIX_2: {
+		const auto& lmat = reinterpret_cast<Matrix_Type*>(paddr);
+		if (num_data.get_type() == DATA_DOUBLE) {
+			Num_Type rnum;
+			num_data.get_data(rnum);
+			lmat->loc(xpos, ypos) = rnum;
+		}
+		else if (num_data.get_type() == DATA_BOOL) {
+			bool rnum;
+			num_data.get_data(rnum);
+			lmat->loc(xpos, ypos) = Num_Type(rnum);
+		}
+		else {
+			Complex_Type rnum;
+			num_data.get_data(rnum);
+			Complex_Type* pbuf = new Complex_Type[lmat->col()*lmat->row()];
+			for (size_t i = 0; i < lmat->col()*lmat->row(); i++) {
+				pbuf[i] = lmat->data()[i];
+			}
+			pbuf[xpos*lmat->col() + ypos] = rnum;
+			pmap->data_change(paddr, Base_Data(Cmatrix_Type(lmat->row(), lmat->col(), pbuf, false)));
+		}
+		break;
+	}
+	case CMATRIX_2: {
+		const auto& lmat = reinterpret_cast<Cmatrix_Type*>(paddr);
+		if (num_data.get_type() == DATA_DOUBLE) {
+			Num_Type rnum;
+			num_data.get_data(rnum);
+			lmat->loc(xpos, ypos) = rnum;
+		}
+		else if (num_data.get_type() == DATA_BOOL) {
+			bool rnum;
+			num_data.get_data(rnum);
+			lmat->loc(xpos, ypos) = Num_Type(rnum);
+		}
+		else {
+			Complex_Type rnum;
+			num_data.get_data(rnum);
+			lmat->loc(xpos, ypos) = rnum;
+		}
+		break;
+	}
+	default:
+		throw show_err("未知错误");
+		break;
+	}
+}
+
+void inter::Interpreter::Node_Elem_Num::get_data(Base_Data & num_data) {
+	switch (type) {
+	case ARRAY_1: {
+		num_data = reinterpret_cast<_Data_Array*>(paddr)->at(xpos);
+		break;
+	}
+	case MATRIX_1: {
+		const auto& lmat = reinterpret_cast<Matrix_Type*>(paddr);
+		size_t lcol = lmat->col();
+		Num_Type* pbuf = new Num_Type[lcol];
+		for (size_t i = 0; i < lcol; i++) {
+			pbuf[i] = lmat->loc(xpos, i);
+		}
+		num_data = Base_Data(Matrix_Type(1, lcol, pbuf, false));
+		break;
+	}
+	case CMATRIX_1: {
+		Complex_Type* pbuf = new Complex_Type[reinterpret_cast<Cmatrix_Type*>(paddr)->col()];
+		for (size_t i = 0; i < reinterpret_cast<Cmatrix_Type*>(paddr)->col(); i++) {
+			pbuf[i] = reinterpret_cast<Cmatrix_Type*>(paddr)->loc(xpos, i);
+		}
+		num_data = Base_Data(Cmatrix_Type(1, reinterpret_cast<Cmatrix_Type*>(paddr)->col(), pbuf, false));
+		break;
+	}
+	case MATRIX_2: {
+		num_data = Base_Data(reinterpret_cast<Matrix_Type*>(paddr)->loc(xpos, ypos));
+		break;
+	}
+	case CMATRIX_2: {
+		num_data = Base_Data(reinterpret_cast<Cmatrix_Type*>(paddr)->loc(xpos, ypos));
+		break;
+	}
+	default:
+		throw show_err("未知错误");
+	}
+}
