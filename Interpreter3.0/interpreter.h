@@ -158,7 +158,7 @@ private:
     };
     //各种键值对的个数
     static const size_t binary_func_num		= 8;		//二元运算符个数
-    static const size_t singlevar_func_num	= 32;		//单变量函数个数
+    static const size_t singlevar_func_num	= 33;		//单变量函数个数
     static const size_t unary_func_num		= 2;		//单目运算符个数
 	static const size_t const_BaseData_num	= 6;		//常量个数
 

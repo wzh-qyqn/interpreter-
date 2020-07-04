@@ -392,8 +392,6 @@ Matrix<T>::~Matrix() {
 	delete[] paddr;
 }
 
-
-
 }
 
 #endif

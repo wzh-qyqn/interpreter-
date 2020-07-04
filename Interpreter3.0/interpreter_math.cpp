@@ -501,7 +501,7 @@ Num_Type inline imag(const Complex_Type& a) {
 Num_Type inline real(const Complex_Type& a) {
     return a.real();
 }
-static inline Use_Data urtgamma(const Use_Data&a);
+Use_Data urtgamma(const Use_Data&a);
 static inline Interpreter::_Data_Array rtgamma(const Interpreter::_Data_Array* a) {
 	Interpreter::_Data_Array pvec;
 	for (size_t i = 0; i < a->size(); i++) {
@@ -564,7 +564,6 @@ static inline Matrix_Type rtranse(Matrix_Type* a) {
 static inline Cmatrix_Type rtranse(Cmatrix_Type* a) {
 	return a->transpos();
 }
-
 static inline Num_Type rsize(Interpreter::_Data_Array* pvec) {
 	return Num_Type(pvec->size());
 }
@@ -957,6 +956,20 @@ Use_Data urarry(const Use_Data& a) {
 	return Use_Data(rarray(a));
 }
 
+Use_Data rzero(const Use_Data& a) {
+	if (a.get_type() == Interpreter::DATA_ARRAY) {
+		Interpreter::_Data_Array* pvec;
+		a.get_data(pvec);
+		if (pvec->size() == 2) {
+			Num_Type row_num, col_num;
+			pvec->at(0).get_data(row_num);
+			pvec->at(1).get_data(col_num);
+			return Use_Data(Matrix_Type(size_t(row_num), size_t(col_num)));
+		}else
+			throw show_err("函数参数过多");
+	}else
+		throw show_err("函数参数错误");
+}
 #define MATRIX_FUNCTION_DECLARE(name)	Use_Data m##name##(const Use_Data& a){\
 											switch(a.get_type()){\
 											case Interpreter::DATA_MATRIX:{\
@@ -1390,7 +1403,8 @@ const std::array<Interpreter::SingleVar_Func, Interpreter::singlevar_func_num>In
 	"complex",urcomp,
 	"array"	,urarry,
 	"matrix",urmatrix,
-	"cmatrix",urcmatrix
+	"cmatrix",urcmatrix,
+	"zero",rzero,
 };
 const std::array<Interpreter::Unary_Func, \
     Interpreter::unary_func_num>Interpreter::unary_func = {
