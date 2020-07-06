@@ -98,13 +98,13 @@ public:
 		Base_Data get_real() const;				//获取真实值
 		bool is_shadow()const;					//对是否是标签进行判断
 		Data_Type get_type() const;				//获取存储的数据类型
-		void get_data(void* &)const;			//获取标签地址
+		void get_data(const void* &)const;			//获取标签地址
 		void get_data(Num_Type&) const;			//获取数据
 		void get_data(Complex_Type&)const;
 		void get_data(bool&)const;
-		void get_data(_Data_Array*&)const;
-		void get_data(Matrix_Type*&)const;
-		void get_data(Cmatrix_Type*&)const;
+		void get_data(const _Data_Array*&)const;
+		void get_data(const Matrix_Type*&)const;
+		void get_data(const Cmatrix_Type*&)const;
 		~Base_Data();
     };
 private:
@@ -114,7 +114,7 @@ private:
     typedef std::map<Str_Type, Base_Data> _My_Map;
     typedef _My_Map::iterator _My_Map_Iter;
     typedef _Data_Array::iterator _My_Vector_Iter;
-    typedef std::map<void*, _My_Map_Iter> _My_Point_Map;
+    typedef std::map<const void*, _My_Map_Iter> _My_Point_Map;
 
     /**
     * @brief 查询指定的存储空间内是否有指定的值,若存在则返回偏移量，若不存在返回
@@ -477,9 +477,9 @@ private:
         _My_Point_Map var_p_map;
     public:
 		Base_Data push_new(const Str_Type&pstr, const Base_Data &pdata);//填入新变量
-		Base_Data data_change(void* psrc, const Base_Data& pdata);		//改变变量值
+		Base_Data data_change(const void* psrc, const Base_Data& pdata);		//改变变量值
 		bool find_in(const Str_Type&pstr, Base_Data &pdata);			//根据字符串寻找变量
-		bool find_in(void* paddr, _My_Map_Iter& pIter);
+		bool find_in(const void* paddr, _My_Map_Iter& pIter);
 		_My_Map get_main_var(void) {										//获取变量表
 			return var_map;
 		}
@@ -500,17 +500,21 @@ private:
 		void* paddr;
 		const Elem_Type type;
 	public:
-		Node_Elem_Num(void* addr, Elem_Type ptype, size_t xupos, size_t yupos = 0) :
-			Node_Num(NUM_ELEME,Base_Data()), xpos(xupos), ypos(yupos), type(ptype), paddr(addr) {}
-		Node_Elem_Num(_My_List* baselist, void* addr, Elem_Type ptype, size_t xupos, size_t yupos = 0) :
-			Node_Num(baselist, NUM_ELEME, Base_Data()), xpos(xupos), ypos(yupos), type(ptype), paddr(addr) {};
+		Node_Elem_Num(const void* addr, Elem_Type ptype, size_t xupos, size_t yupos = 0) :
+			Node_Num(NUM_ELEME,Base_Data()), xpos(xupos), ypos(yupos), type(ptype), paddr(const_cast<void*>(addr)) {}
+		Node_Elem_Num(_My_List* baselist, const void* addr, Elem_Type ptype, size_t xupos, size_t yupos = 0) :
+			Node_Num(baselist, NUM_ELEME, Base_Data()), xpos(xupos), ypos(yupos), type(ptype), paddr(const_cast<void*>(addr)) {};
 		Node_Elem_Num(Base_Data&& pdata, Elem_Type ptype, size_t xupos, size_t yupos = 0) :
 			Node_Num(NUM_ELEME, std::move(pdata)), xpos(xupos), ypos(yupos), type(ptype){
-			store_num.get_data(paddr);
+			const void* addr;
+			store_num.get_data(addr);
+			paddr = const_cast<void*>(addr);
 		}
 		Node_Elem_Num(_My_List* baselist, Base_Data&& pdata, Elem_Type ptype, size_t xupos, size_t yupos = 0) :
 			Node_Num(baselist, NUM_ELEME, std::move(pdata)), xpos(xupos), ypos(yupos), type(ptype){
-			store_num.get_data(paddr);
+			const void* addr;
+			store_num.get_data(addr);
+			paddr = const_cast<void*>(addr);
 		};
 		void assign(Base_Data& num_data, Variable_Map* pmap);
 		virtual _My_List_Iter operation(void)override {

@@ -289,7 +289,7 @@ inter::Interpreter::Data_Type inter::Interpreter::Base_Data::get_type() const {
 }
 
 //获取内部存储的数据源地址
-void inter::Interpreter::Base_Data::get_data(void *& p) const {	//此处获取源地址是为了让我们可以通过
+void inter::Interpreter::Base_Data::get_data(const void *& p) const {	//此处获取源地址是为了让我们可以通过
 	if (is_init)				//影子可以寻找到本体，影子与本体的唯一
 		p = data;				//联系只有这个地址。
 	else
@@ -332,10 +332,10 @@ void inter::Interpreter::Base_Data::get_data(bool & res) const {
 		throw show_err("试图查询未初始化的数值类型");
 }
 
-void inter::Interpreter::Base_Data::get_data(_Data_Array *& res) const {
+void inter::Interpreter::Base_Data::get_data(const _Data_Array *& res) const {
 	if (is_init) {
 		if (DATA_ARRAY == d_type) {
-			res = reinterpret_cast<_Data_Array*>(data);
+			res = reinterpret_cast<const _Data_Array *>(data);
 		}
 		else
 			throw show_err("数据类型错误，格式不匹配");
@@ -344,10 +344,10 @@ void inter::Interpreter::Base_Data::get_data(_Data_Array *& res) const {
 		throw show_err("试图查询未初始化的数值类型");
 }
 
-void inter::Interpreter::Base_Data::get_data(Matrix_Type *& res) const{
+void inter::Interpreter::Base_Data::get_data(const Matrix_Type *& res) const{
 	if (is_init) {
 		if (DATA_MATRIX == d_type) {
-			res = reinterpret_cast<Matrix_Type*>(data);
+			res = reinterpret_cast<const Matrix_Type*>(data);
 		}
 		else
 			throw show_err("数据类型错误，格式不匹配");
@@ -356,10 +356,10 @@ void inter::Interpreter::Base_Data::get_data(Matrix_Type *& res) const{
 		throw show_err("试图查询未初始化的数值类型");
 }
 
-void inter::Interpreter::Base_Data::get_data(Cmatrix_Type *& res) const{
+void inter::Interpreter::Base_Data::get_data(const Cmatrix_Type *& res) const{
 	if (is_init) {
 		if (DATA_CMATRIX == d_type) {
-			res = reinterpret_cast<Cmatrix_Type*>(data);
+			res = reinterpret_cast<const Cmatrix_Type*>(data);
 		}
 		else
 			throw show_err("数据类型错误，格式不匹配");
@@ -399,7 +399,7 @@ inter::Ostr_Type& inter::operator<<(inter::Ostr_Type&os, const inter::Interprete
 		break;
 	}
 	case inter::Interpreter::DATA_ARRAY: {
-		inter::Interpreter::_Data_Array* a;
+		const inter::Interpreter::_Data_Array* a;
 		pData.get_data(a);
 		os << '(';
 		for (auto const& iter : *a) {
@@ -409,7 +409,7 @@ inter::Ostr_Type& inter::operator<<(inter::Ostr_Type&os, const inter::Interprete
 		break;
 	}
 	case inter::Interpreter::DATA_MATRIX: {
-		inter::Matrix_Type* a;
+		const inter::Matrix_Type* a;
 		pData.get_data(a);
 		for (size_t i = 0; i < a->row(); i++) {
 			for (size_t j = 0; j < a->col(); j++) {
@@ -420,7 +420,7 @@ inter::Ostr_Type& inter::operator<<(inter::Ostr_Type&os, const inter::Interprete
 		break;
 	}
 	case inter::Interpreter::DATA_CMATRIX: {
-		inter::Cmatrix_Type* a;
+		const inter::Cmatrix_Type* a;
 		pData.get_data(a);
 		for (size_t i = 0; i < a->row(); i++) {
 			for (size_t j = 0; j < a->col(); j++) {
@@ -905,7 +905,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operatio
 				priv->get_data(pbuf);
 				switch (pbuf.get_type()) {
 				case DATA_ARRAY: {
-					_Data_Array* pvec;
+					const _Data_Array* pvec;
 					Base_Item* pItem;
 					Num_Type poffset;
 					pbuf.get_data(pvec);
@@ -921,7 +921,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operatio
 					return instead(pItem);
 				}
 				case DATA_MATRIX: {
-					Matrix_Type* pmat;
+					const Matrix_Type* pmat;
 					Base_Item* pItem;
 					pbuf.get_data(pmat);
 					switch (pself.get_type()) {
@@ -939,7 +939,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operatio
 						return instead(pItem);
 					}
 					case DATA_ARRAY: {
-						_Data_Array* pvec;
+						const _Data_Array* pvec;
 						pself.get_data(pvec);
 						if(pvec->size()!=2)
 							throw show_err("访问矩阵元素的下标个数错误！");
@@ -959,7 +959,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operatio
 					}
 				}
 				case DATA_CMATRIX: {
-					Cmatrix_Type* pmat;
+					const Cmatrix_Type* pmat;
 					Base_Item* pItem;
 					pbuf.get_data(pmat);
 					switch (pself.get_type()) {
@@ -968,6 +968,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operatio
 						pself.get_data(poffset);
 						if (size_t(poffset) >= pmat->row()) {
 							throw show_err("矩阵行向量访问错误，可访问范围：0~", pmat->row() - 1, ",试图访问的坐标：", size_t(poffset));
+							
 						}
 						if (pbuf.is_shadow())
 							pItem = new Node_Elem_Num(pmat, Node_Elem_Num::CMATRIX_1, size_t(poffset));
@@ -977,7 +978,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operatio
 						return instead(pItem);
 					}
 					case DATA_ARRAY: {
-						_Data_Array* pvec;
+						const _Data_Array* pvec;
 						pself.get_data(pvec);
 						if (pvec->size() != 2)
 							throw show_err("访问矩阵元素的下标个数错误！");
@@ -1081,7 +1082,7 @@ pdata:新元素的值
 
 inter::Interpreter::Base_Data inter::Interpreter::Variable_Map::push_new(const Str_Type & pstr, const Base_Data & pdata) {
 	auto&& ret = var_map.insert(std::make_pair(pstr, pdata.get_real())).first;//必须要存储真实值
-	void* use_data;
+	const void* use_data;
 	ret->second.get_data(use_data);
 	var_p_map.insert(std::make_pair(use_data, ret));
 	return ret->second.get_shadow();
@@ -1094,10 +1095,10 @@ pdata:要更改的值
 * @return 元素更改后生成的影子
 */
 
-inter::Interpreter::Base_Data inter::Interpreter::Variable_Map::data_change(void * psrc, const Base_Data & pdata) {
+inter::Interpreter::Base_Data inter::Interpreter::Variable_Map::data_change(const void * psrc, const Base_Data & pdata) {
 	auto&& ret = var_p_map.find(psrc);
 	if (ret != var_p_map.end()) {
-		void* pnew;
+		const void* pnew;
 		_My_Map_Iter pIter = ret->second;
 		pIter->second = std::move(pdata.get_real());
 		pIter->second.get_data(pnew);
@@ -1127,7 +1128,7 @@ bool inter::Interpreter::Variable_Map::find_in(const Str_Type & pstr, Base_Data 
 		return false;
 }
 
-bool inter::Interpreter::Variable_Map::find_in(void * paddr, _My_Map_Iter & pIter)
+bool inter::Interpreter::Variable_Map::find_in(const void * paddr, _My_Map_Iter & pIter)
 {
 	auto &&ret = var_p_map.find(paddr);
 	if (ret != var_p_map.end()) {
@@ -1168,7 +1169,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Assignment_Operator::opera
 	}
 	else {//对变量赋值
 		Base_Data priv_num;
-		void* priv_data;
+		const void* priv_data;
 		node_priv->get_data(priv_num);				//获取左值的变量
 		priv_num.get_data(priv_data);				//获取左值的变量的源地址
 		base_map->data_change(priv_data, pnext_num);
@@ -1291,7 +1292,7 @@ void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Ma
 	case MATRIX_1: {
 		const auto& lmat = reinterpret_cast<Matrix_Type*>(paddr);
 		if (num_data.get_type() == DATA_MATRIX) {
-			Matrix_Type* rmat;
+			const Matrix_Type* rmat;
 			num_data.get_data(rmat);
 			if (rmat->col() != lmat->col()) {
 				throw show_err("行向量赋值失败，维数不统一");
@@ -1301,7 +1302,7 @@ void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Ma
 			}
 		}
 		else {
-			Cmatrix_Type* rmat;
+			const Cmatrix_Type* rmat;
 			num_data.get_data(rmat);
 			if (rmat->col() != lmat->col()) {
 				throw show_err("行向量赋值失败，维数不统一");
@@ -1321,7 +1322,7 @@ void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Ma
 	case CMATRIX_1: {
 		const auto& lmat = reinterpret_cast<Cmatrix_Type*>(paddr);
 		if (num_data.get_type() == DATA_MATRIX) {
-			Matrix_Type* rmat;
+			const Matrix_Type* rmat;
 			num_data.get_data(rmat);
 			if (rmat->col() != lmat->col()) {
 				throw show_err("行向量赋值失败，维数不统一");
@@ -1331,7 +1332,7 @@ void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Ma
 			}
 		}
 		else {
-			Cmatrix_Type* rmat;
+			const Cmatrix_Type* rmat;
 			num_data.get_data(rmat);
 			if (rmat->col() != lmat->col()) {
 				throw show_err("行向量赋值失败，维数不统一");

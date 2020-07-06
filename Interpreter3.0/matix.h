@@ -24,7 +24,7 @@ public:
 	Matrix(Matrix&& pmat);
 	constexpr size_t row() const;//矩阵行数
 	constexpr size_t col() const;//矩阵列数
-	Matrix	transpos();			//矩阵转置
+	Matrix	transpos() const;			//矩阵转置
 	constexpr T* data()const;
 	constexpr T& loc(size_t lnum, size_t cnum) const;//访问矩阵元素，与C语言二维数组访问规则一致，从0~row-1 , 0~col-1
 	Matrix	alg_complem(size_t lnum, size_t cnum) const;//求指定坐标下的代数余子式
@@ -215,7 +215,7 @@ inline Matrix<T> Matrix<T>::reverse() const {
 
 //矩阵转置
 template<typename T>
-inline Matrix<T> Matrix<T>::transpos() {
+inline Matrix<T> Matrix<T>::transpos() const{
 	T* pbuf = new T[row_num*col_num];
 	for (size_t i = 0; i < col_num; i++) {
 		for (size_t j = 0; j < row_num; j++) {
