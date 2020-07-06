@@ -621,6 +621,7 @@ size_t inter::Interpreter::symbol_string(_My_List & buf_list, const Char_Type * 
 		}state;
 		Braket_Status(_My_List*p, Status s):pdata(p),state(s){}
 	};
+	bool is_space=false;
 	size_t length = strlen(str) + 1;
 	size_t offset = 0;
 	_My_List* main_list = &buf_list;
@@ -631,6 +632,8 @@ size_t inter::Interpreter::symbol_string(_My_List & buf_list, const Char_Type * 
 		if (!isascii(str[i])) {
 			throw show_err("暂不支持非ascii字符输入");
 		}
+		if (str[i] != ' ' || str[i] != ',')
+			is_space = false;
 		if (is_num(str[i], name_offset)) {
 			num_offset++;
 			continue;
@@ -708,8 +711,14 @@ size_t inter::Interpreter::symbol_string(_My_List & buf_list, const Char_Type * 
 			continue;
 		}
 		if (str[i] == ',') {
-			if(bracket_stack.top().state == Braket_Status::Normal)
+			if (bracket_stack.top().state == Braket_Status::Normal)
 				new Comma_Operator(main_list);
+			else {
+				if (!is_space) {
+					new Space_Opretator(main_list);
+					is_space = true;
+				}
+			}
 			continue;
 		}
 		if (str[i] == '\0') {
@@ -726,13 +735,19 @@ size_t inter::Interpreter::symbol_string(_My_List & buf_list, const Char_Type * 
 		if (str[i] == '\n') {
 			if (bracket_stack.top().state == Braket_Status::Square) {
 				new Divide_Operator(main_list);
-				continue;
 			}
-			else
-				continue;
-		}
-		if (str[i] == ' ')
 			continue;
+		}
+		if (str[i] == ' ') {
+			if (bracket_stack.top().state == Braket_Status::Square) {
+				if (!is_space) {
+					new Space_Opretator(main_list);
+					is_space = true;
+				}
+			}
+			continue;
+		}
+			
 		throw show_err(str[i], "为未定义字符");
 	}
 	if (main_list != &buf_list)//主链表与基础的链表不一致，显然括号不匹配
@@ -867,13 +882,17 @@ inter::Str_Type inter::Interpreter::get_const_opre() {
 inter::Interpreter::_My_List_Iter inter::Interpreter::Binary_Operator::operation(void) {
 	Base_Data a, b;
 	_My_List_Iter use_iter;
+	bool signflag=false;
 	if (this == get_master()->back()) //右端没有节点
 		throw show_err("运算符'", binary_func[num].name, "'使用错误！");
 	Base_Item* node_next = *(++get_iter());		//获取右端节点指针
 	node_next->get_data(b);						//获取数据（不是num节点会自动抛出异常)
+	if (binary_func[num].name == '-') {
+		signflag = true;
+	}
 	if (this == get_master()->front()) {		//左端没有节点
-		if (binary_func[num].name == '+' || binary_func[num].name == '-') {//可能是正负号
-			auto&& res = binary_func[num].func(Base_Data(Num_Type(0)), b);
+		if (signflag) {//可能是负号
+			auto&& res = binary_func[is_in_store(binary_func, '*')].func(Base_Data(Num_Type(-1)), b);//调用乘法计算
 			use_iter = instead(new Noraml_Num(res));
 			delete node_next;
 			return use_iter;
@@ -881,6 +900,12 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Binary_Operator::operation
 		throw show_err("运算符'", binary_func[num].name, "'使用错误！");
 	}
 	Base_Item* node_priv = *(--get_iter());		//获取左端的节点指针
+	if (signflag && node_priv->get_base() != BASE_NUM) {//可能负号
+		auto&& res = binary_func[is_in_store(binary_func,'*')].func(Base_Data(Num_Type(-1)), b);//调用乘法计算
+		use_iter = instead(new Noraml_Num(res));
+		delete node_next;
+		return use_iter;
+	}
 	node_priv->get_data(a);						//获取数据（不是num节点会自动抛出异常)
 	auto&& res = binary_func[num].func(a, b);	//对数据进行对应的运算
 	use_iter = instead(new Noraml_Num(res));		//用计算结果的num节点替换掉自己
@@ -1212,6 +1237,9 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::SQ_Bracket_Operator::opera
 				}
 				col_num = 0;
 			}
+		}
+		else if ((*use_iter)->get_item() == SPACE_OPERATOR) {
+			continue;
 		}
 		else {
 			Base_Data pdata;

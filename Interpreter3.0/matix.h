@@ -24,10 +24,10 @@ public:
 	Matrix(Matrix&& pmat);
 	constexpr size_t row() const;//矩阵行数
 	constexpr size_t col() const;//矩阵列数
-	Matrix	transpos() const;			//矩阵转置
 	constexpr T* data()const;
 	constexpr T& loc(size_t lnum, size_t cnum) const;//访问矩阵元素，与C语言二维数组访问规则一致，从0~row-1 , 0~col-1
-	Matrix	alg_complem(size_t lnum, size_t cnum) const;//求指定坐标下的代数余子式
+	Matrix	transpos() const;			//矩阵转置
+	Matrix	alg_complem(size_t lnum, size_t cnum) const;//求指定坐标下的余子式
 	Matrix	adjoint()const; //求取伴随阵
 	Matrix	reverse()const;	//求逆阵
 	T		det() const;	//求取行列式的值
@@ -64,7 +64,7 @@ template<typename T>
 inline void Matrix<T>::sum_mul(T * paddr, size_t * psave, \
 	T & res, const size_t & max_num, size_t save_num, bool sign_flag) {
 	if (save_num == max_num) {
-		T buf_res = 1;
+		T buf_res(1);
 		for (size_t i = 0; i < max_num; i++) {
 			buf_res *= paddr[i*max_num + psave[i]];
 		}
@@ -164,21 +164,18 @@ constexpr inline T& Matrix<T>::loc(size_t lnum, size_t cnum) const {
 	return paddr[lnum*col_num + cnum];
 }
 
-//求指定坐标下的代数余子式
+//求指定坐标下的余子式
 template<typename T>
 inline Matrix<T> Matrix<T>::alg_complem(size_t lnum, size_t cnum) const {
 	T* pbuf;
-	T sflag = (lnum + cnum) % 2 ? -1 : 1;
 	if (lnum >= row_num || cnum >= col_num) {
 		throw inter_error("矩阵元素访问错误！");
 	}
-	if (row_num == 0 || col_num == 0)
-		return Matrix(0, 0);
 	pbuf = new T[(row_num - 1)*(col_num - 1)];
 	for (size_t i = 0, k = 0; i < row_num; i++) {
 		for (size_t j = 0; j < col_num; j++) {
 			if (i != lnum&&j != cnum) {
-				pbuf[k] = sflag*loc(i, j);
+				pbuf[k] = loc(i, j);
 				k++;
 			}
 		}
@@ -197,7 +194,7 @@ inline Matrix<T> Matrix<T>::adjoint() const {
 	pbuf = new T[row_num*col_num];
 	for (size_t i = 0; i < row_num; i++) {
 		for (size_t j = 0; j < col_num; j++) {
-			pbuf[col()*i + j] = alg_complem(j, i).det();
+			pbuf[col_num*i + j] = ((j+i)%2?T(-1):T(1))*alg_complem(j, i).det();
 		}
 	}
 	return Matrix(row_num, col_num, pbuf, false);

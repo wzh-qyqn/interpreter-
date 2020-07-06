@@ -195,6 +195,7 @@ private:
         BRACKET_OPERATOR,	//括号运算符
 		SQ_BEACKET_OPERATOR,//方括号
 		DIVIDE_OPERATOR,	//分隔符
+		SPACE_OPERATOR,
         COMMA_OPRERATOR,    //逗号运算符
         UNDEF_NAME,			//还未定义的名字	
     };
@@ -411,6 +412,15 @@ private:
 	public:
 		Divide_Operator(_My_List* baselist) :
 			Node_Empty(baselist, DIVIDE_OPERATOR, 0){}
+		virtual _My_List_Iter operation(void)override {
+			return ++get_iter();
+		}
+	};
+
+	class Space_Opretator : public Node_Empty {
+	public:
+		Space_Opretator(_My_List* baselist) :
+			Node_Empty(baselist, SPACE_OPERATOR, 0) {}
 		virtual _My_List_Iter operation(void)override {
 			return ++get_iter();
 		}
