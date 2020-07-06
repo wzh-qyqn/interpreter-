@@ -29,7 +29,7 @@ public:
 	Matrix	transpos() const;			//矩阵转置
 	Matrix	alg_complem(size_t lnum, size_t cnum) const;//求指定坐标下的余子式
 	Matrix	adjoint()const; //求取伴随阵
-	Matrix	reverse()const;	//求逆阵
+	Matrix	inv()const;		//求逆阵
 	T		det() const;	//求取行列式的值
 	Matrix	operator=(const Matrix& pmat);
 	Matrix	operator=(Matrix&& pmat);
@@ -51,7 +51,7 @@ public:
 		return pmat*pnum;										 //否则当出现 int类型的数乘以double类型的矩阵时，会报错
 	}
 	friend Matrix operator/(const T& pnum, const Matrix &pmat) {
-		return pmat.reverse()*pnum;
+		return pmat.inv()*pnum;
 	}
 	~Matrix();
 };
@@ -202,7 +202,7 @@ inline Matrix<T> Matrix<T>::adjoint() const {
 
 //求逆阵
 template<typename T>
-inline Matrix<T> Matrix<T>::reverse() const {
+inline Matrix<T> Matrix<T>::inv() const {
 	T&& res_det = det();
 	if (res_det == T(0)) {
 		throw inter_error("矩阵为奇异阵无法求取逆阵");
@@ -348,7 +348,7 @@ inline Matrix<T> Matrix<T>::operator*(const Matrix<T> &pmat)const {
 //矩阵除法
 template<typename T>
 inline Matrix<T> Matrix<T>::operator/(const Matrix<T> &pmat) const {
-	return (*this)*(pmat.reverse());
+	return (*this)*(pmat.inv());
 }
 template<typename T>
 inline Matrix<T> Matrix<T>::operator/(const T &pnum) const {

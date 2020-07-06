@@ -540,11 +540,11 @@ static inline Num_Type rdet(const Matrix_Type* a) {
 static inline Complex_Type rdet(const Cmatrix_Type* a) {
 	return a->det();
 }
-static inline Matrix_Type rreserve(const Matrix_Type* a) {
-	return a->reverse();
+static inline Matrix_Type rreverse(const Matrix_Type* a) {
+	return a->inv();
 }
-static inline Cmatrix_Type rreserve(const Cmatrix_Type* a) {
-	return a->reverse();
+static inline Cmatrix_Type rreverse(const Cmatrix_Type* a) {
+	return a->inv();
 }
 static inline Num_Type rrow(const Matrix_Type* a) {
 	return Num_Type(a->row());
@@ -928,7 +928,7 @@ Interpreter::_Data_Array rarray(const Use_Data& a) {
 		return rarray(a1);
 	}
 	case Interpreter::DATA_CMATRIX: {
-		const Matrix_Type* a1;
+		const Cmatrix_Type* a1;
 		a.get_data(a1);
 		return rarray(a1);
 	}
@@ -1343,7 +1343,7 @@ BINARY_FUNCTION_DECLARE(rpow)
 SINGLEVAR_FUNCTION_DECLARE(rtgamma)
 
 MATRIX_FUNCTION_DECLARE(rdet)
-MATRIX_FUNCTION_DECLARE(rreserve)
+MATRIX_FUNCTION_DECLARE(rreverse)
 MATRIX_FUNCTION_DECLARE(rrow)
 MATRIX_FUNCTION_DECLARE(rtranse)
 MATRIX_FUNCTION_DECLARE(rcol)
@@ -1391,7 +1391,7 @@ const std::array<Interpreter::SingleVar_Func, Interpreter::singlevar_func_num>In
     "real"	,urreal,
     "imag"	,urimag,
 	"det"	,mrdet,
-	"reser" ,mrreserve,
+	"inv" ,mrreverse,
 	"row"	,mrrow,
 	"trans" ,mrtranse,
 	"col"	,mrcol,

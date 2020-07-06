@@ -235,8 +235,8 @@ int main(void) {
 	try {
 		cout << test.det() << endl;
 		cout << "reverse test:" << endl;
-		cout << test.reverse();
-		cout << test*test.reverse();
+		cout << test.inv();
+		cout << test*test.inv();
 		test /= 6;
 		cout << (6 * test);
 	}
