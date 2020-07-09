@@ -632,7 +632,7 @@ size_t inter::Interpreter::symbol_string(_My_List & buf_list, const Char_Type * 
 		if (!isascii(str[i])) {
 			throw show_err("暂不支持非ascii字符输入");
 		}
-		if (str[i] != ' ' || str[i] != ',')
+		if (str[i] != ' ' && str[i] != ','&&str[i]!='\t')
 			is_space = false;
 		if (is_num(str[i], name_offset)) {
 			num_offset++;
@@ -738,7 +738,7 @@ size_t inter::Interpreter::symbol_string(_My_List & buf_list, const Char_Type * 
 			}
 			continue;
 		}
-		if (str[i] == ' ') {
+		if (str[i] == ' '||str[i]=='\t') {
 			if (bracket_stack.top().state == Braket_Status::Square) {
 				if (!is_space) {
 					new Space_Opretator(main_list);
@@ -747,7 +747,6 @@ size_t inter::Interpreter::symbol_string(_My_List & buf_list, const Char_Type * 
 			}
 			continue;
 		}
-			
 		throw show_err(str[i], "为未定义字符");
 	}
 	if (main_list != &buf_list)//主链表与基础的链表不一致，显然括号不匹配
@@ -828,13 +827,11 @@ void inter::Interpreter::clear() {
 	main_var.clear();
 }
 
-inter::Str_Type inter::Interpreter::get_const_num() {
-	Str_Type buf;
-	buf += result_string;
-	buf += '\n';
+std::vector<inter::Str_Type> inter::Interpreter::get_const_num() {
+	std::vector<inter::Str_Type> buf;
+	buf.push_back(result_string);
 	for (const auto &pIter : const_BaseData) {
-		buf += pIter.name;
-		buf += '\n';
+		buf.push_back(pIter.name);
 	}
 	return buf;
 }
@@ -845,11 +842,10 @@ inter::Str_Type inter::Interpreter::get_const_num() {
 * @return Str_Type:由\n间隔的函数名组成的字符串
 */
 
-inter::Str_Type inter::Interpreter::get_const_func() {
-	Str_Type buf;
+std::vector<inter::Str_Type> inter::Interpreter::get_const_func() {
+	std::vector<inter::Str_Type> buf;
 	for (const auto &pIter : singlevar_func) {
-		buf += pIter.name;
-		buf += '\n';
+		buf.push_back(pIter.name);
 	}
 	return buf;
 }
@@ -860,15 +856,13 @@ inter::Str_Type inter::Interpreter::get_const_func() {
 * @return Str_Type:由\n间隔的运算符组成的字符串
 */
 
-inter::Str_Type inter::Interpreter::get_const_opre() {
-	Str_Type buf;
+std::vector<inter::Char_Type> inter::Interpreter::get_const_opre() {
+	std::vector<inter::Char_Type> buf;
 	for (const auto &pIter : binary_func) {
-		buf += pIter.name;
-		buf += '\n';
+		buf.push_back(pIter.name);
 	}
 	for (const auto &pIter : unary_func) {
-		buf += pIter.name;
-		buf += '\n';
+		buf.push_back(pIter.name);
 	}
 	return buf;
 }
@@ -1220,13 +1214,13 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::SQ_Bracket_Operator::opera
 	std::vector<Num_Type> num_buf;
 	std::vector<Complex_Type> complex_buf;
 	_My_List_Iter use_iter;
-	bool is_num = true;
+	bool is_double_num = true;
 	if (use_list.empty()) {
 		return ++get_iter();
 	}
 	simply_express(use_list);//化简自身的节点
-	for (_My_List_Iter use_iter = use_list.begin(); use_iter != use_list.end(); use_iter++) {
-		if ((*use_iter)->get_item() == DIVIDE_OPERATOR) {
+	for (_My_List_Iter pIter = use_list.begin(); pIter != use_list.end(); pIter++) {
+		if ((*pIter)->get_item() == DIVIDE_OPERATOR) {
 			if (col_num != 0) {
 				row_num++;
 				if (col_finalnum == 0) {
@@ -1238,18 +1232,18 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::SQ_Bracket_Operator::opera
 				col_num = 0;
 			}
 		}
-		else if ((*use_iter)->get_item() == SPACE_OPERATOR) {
+		else if ((*pIter)->get_item() == SPACE_OPERATOR) {
 			continue;
 		}
 		else {
 			Base_Data pdata;
-			(*use_iter)->get_data(pdata);
+			(*pIter)->get_data(pdata);
 			col_num++;
 			switch (pdata.get_type()) {
 			case DATA_DOUBLE: {
 				Num_Type pres;
 				pdata.get_data(pres);
-				if (is_num) {
+				if (is_double_num) {
 					num_buf.push_back(pres);
 				}
 				else {
@@ -1260,7 +1254,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::SQ_Bracket_Operator::opera
 			case DATA_BOOL: {
 				bool pres;
 				pdata.get_data(pres);
-				if (is_num) {
+				if (is_double_num) {
 					num_buf.push_back(pres);
 				}
 				else {
@@ -1271,9 +1265,9 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::SQ_Bracket_Operator::opera
 			case DATA_COMPLEX: {
 				Complex_Type pres;
 				pdata.get_data(pres);
-				if (is_num) {
+				if (is_double_num) {
 					complex_buf.assign(num_buf.begin(), num_buf.end());
-					is_num = false;
+					is_double_num = false;
 				}
 				complex_buf.push_back(pres);
 				break;
@@ -1293,7 +1287,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::SQ_Bracket_Operator::opera
 	if (col_num != 0) {
 		row_num++;
 	}
-	if (is_num) {
+	if (is_double_num) {
 		size_t buf_size = num_buf.size();
 		Num_Type* pbuf = new Num_Type[buf_size];
 		for (size_t i = 0; i < buf_size; i++) {
@@ -1318,7 +1312,7 @@ void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Ma
 		reinterpret_cast<_Data_Array*>(paddr)->at(xpos) = num_data.get_real();
 		break;
 	case MATRIX_1: {
-		const auto& lmat = reinterpret_cast<Matrix_Type*>(paddr);
+		const auto&& lmat = reinterpret_cast<Matrix_Type*>(paddr);
 		if (num_data.get_type() == DATA_MATRIX) {
 			const Matrix_Type* rmat;
 			num_data.get_data(rmat);
@@ -1348,7 +1342,7 @@ void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Ma
 		break;
 	}
 	case CMATRIX_1: {
-		const auto& lmat = reinterpret_cast<Cmatrix_Type*>(paddr);
+		const auto&& lmat = reinterpret_cast<Cmatrix_Type*>(paddr);
 		if (num_data.get_type() == DATA_MATRIX) {
 			const Matrix_Type* rmat;
 			num_data.get_data(rmat);
@@ -1372,7 +1366,7 @@ void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Ma
 		break;
 	}
 	case MATRIX_2: {
-		const auto& lmat = reinterpret_cast<Matrix_Type*>(paddr);
+		const auto&& lmat = reinterpret_cast<Matrix_Type*>(paddr);
 		if (num_data.get_type() == DATA_DOUBLE) {
 			Num_Type rnum;
 			num_data.get_data(rnum);
@@ -1396,7 +1390,7 @@ void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Ma
 		break;
 	}
 	case CMATRIX_2: {
-		const auto& lmat = reinterpret_cast<Cmatrix_Type*>(paddr);
+		const auto&& lmat = reinterpret_cast<Cmatrix_Type*>(paddr);
 		if (num_data.get_type() == DATA_DOUBLE) {
 			Num_Type rnum;
 			num_data.get_data(rnum);
@@ -1427,7 +1421,7 @@ void inter::Interpreter::Node_Elem_Num::get_data(Base_Data & num_data) {
 		break;
 	}
 	case MATRIX_1: {
-		const auto& lmat = reinterpret_cast<Matrix_Type*>(paddr);
+		const auto&& lmat = reinterpret_cast<Matrix_Type*>(paddr);
 		size_t lcol = lmat->col();
 		Num_Type* pbuf = new Num_Type[lcol];
 		for (size_t i = 0; i < lcol; i++) {
@@ -1437,11 +1431,13 @@ void inter::Interpreter::Node_Elem_Num::get_data(Base_Data & num_data) {
 		break;
 	}
 	case CMATRIX_1: {
-		Complex_Type* pbuf = new Complex_Type[reinterpret_cast<Cmatrix_Type*>(paddr)->col()];
-		for (size_t i = 0; i < reinterpret_cast<Cmatrix_Type*>(paddr)->col(); i++) {
-			pbuf[i] = reinterpret_cast<Cmatrix_Type*>(paddr)->loc(xpos, i);
+		const auto&& lmat = reinterpret_cast<Cmatrix_Type*>(paddr);
+		size_t lcol = lmat->col();
+		Complex_Type* pbuf = new Complex_Type[lcol];
+		for (size_t i = 0; i < lcol; i++) {
+			pbuf[i] = lmat->loc(xpos, i);
 		}
-		num_data = Base_Data(Cmatrix_Type(1, reinterpret_cast<Cmatrix_Type*>(paddr)->col(), pbuf, false));
+		num_data = Base_Data(Cmatrix_Type(1, lcol, pbuf, false));
 		break;
 	}
 	case MATRIX_2: {

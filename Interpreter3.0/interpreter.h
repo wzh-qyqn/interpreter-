@@ -158,7 +158,7 @@ private:
     };
     //各种键值对的个数
     static const size_t binary_func_num		= 8;		//二元运算符个数
-    static const size_t singlevar_func_num	= 33;		//单变量函数个数
+    static const size_t singlevar_func_num	= 34;		//单变量函数个数
     static const size_t unary_func_num		= 2;		//单目运算符个数
 	static const size_t const_BaseData_num	= 6;		//常量个数
 
@@ -596,19 +596,19 @@ public:
     * @return 无
     */
 	void clear();
-	static Str_Type get_const_num();
+	static std::vector<Str_Type> get_const_num();
     /**
     * @brief 获取支持的函数
     * @param 无
-    * @return Str_Type:由\n间隔的函数名组成的字符串
+    * @return Str_Type:由函数名组成的动态数组
     */
-	static Str_Type get_const_func();
+	static std::vector<Str_Type> get_const_func();
     /**
     * @brief 获取支持的运算符
     * @param 无
-    * @return Str_Type:由\n间隔的运算符组成的字符串
+    * @return Str_Type:由运算符组成的动态数组
     */
-	static Str_Type get_const_opre();
+	static std::vector<Char_Type> get_const_opre();
     /**
     * @brief 重置错误输出流
     * @param err：新的错误流

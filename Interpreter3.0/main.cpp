@@ -32,7 +32,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <Windows.h>
-
+#include <sstream>
 #define MAIN_TEST
 using namespace std;
 #ifdef MAIN_TEST
@@ -134,13 +134,22 @@ int main(int argc, char* argv[])
                 << "            ==================================" << endl;
         }
         else if (is_cmd(str, "show", "func")) {
-            cout << inter::Interpreter::get_const_func();
+            auto&& pIter= inter::Interpreter::get_const_func();
+			for (const auto& use_iter : pIter) {
+				cout << use_iter << std::endl;
+			}
         }
         else if (is_cmd(str, "show", "opre")) {
-            cout << inter::Interpreter::get_const_opre();
+			auto&& pIter = inter::Interpreter::get_const_opre();
+			for (const auto& use_iter : pIter) {
+				cout << use_iter << ' ';
+			}
         }
         else if (is_cmd(str, "show", "const")) {
-            cout << inter::Interpreter::get_const_num();
+			auto&& pIter = inter::Interpreter::get_const_num();
+			for (const auto& use_iter : pIter) {
+				cout << use_iter << std::endl;
+			}
         }
         else if (is_cmd(str, "show","val")) {
             str.clear();
@@ -177,11 +186,14 @@ int main(int argc, char* argv[])
             cout << "所耗时间: " << (end - start) << "ms" << endl;
         }
         else if (is_cmd(str, "read")) {
-            ifstream fin("random_express.txt");
+			ifstream fin;
             time_t start;
             time_t end;
+			str.clear();
             cout << "开始读入文件。。。" << endl;
-            fin >> str;
+			fin.open("random_express.txt");
+			while (!fin.eof())
+				str += fin.get();
             fin.close();
             cout << str << endl;
             cout << "开始计算。。。" << endl;

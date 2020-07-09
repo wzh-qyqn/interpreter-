@@ -970,6 +970,32 @@ Use_Data rzero(const Use_Data& a) {
 	}else
 		throw show_err("函数参数错误");
 }
+
+Use_Data rdim(const Use_Data& a) {
+	if (a.get_type() == Interpreter::DATA_ARRAY) {
+		const Interpreter::_Data_Array* pvec;
+		a.get_data(pvec);
+		if (pvec->size() == 2) {
+			Num_Type row_num, col_num;
+			Num_Type* pbuf;
+			pvec->at(0).get_data(row_num);
+			pvec->at(1).get_data(col_num);
+			pbuf = new Num_Type[size_t(row_num)*size_t(col_num)]();
+			for (size_t i = 0; i < size_t(row_num); i++) {
+				for (size_t j = 0; j < size_t(col_num); j++) {
+					if (i == j) {
+						pbuf[size_t(col_num)*i + j] = 1;
+					}
+				}
+			}
+			return Use_Data(Matrix_Type(size_t(row_num), size_t(col_num),pbuf,false));
+		}
+		else
+			throw show_err("函数参数过多");
+	}
+	else
+		throw show_err("函数参数错误");
+}
 #define MATRIX_FUNCTION_DECLARE(name)	Use_Data m##name##(const Use_Data& a){\
 											switch(a.get_type()){\
 											case Interpreter::DATA_MATRIX:{\
@@ -1405,6 +1431,7 @@ const std::array<Interpreter::SingleVar_Func, Interpreter::singlevar_func_num>In
 	"matrix",urmatrix,
 	"cmatrix",urcmatrix,
 	"zero",rzero,
+	"dim",rdim
 };
 const std::array<Interpreter::Unary_Func, \
     Interpreter::unary_func_num>Interpreter::unary_func = {
