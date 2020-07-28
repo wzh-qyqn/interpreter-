@@ -144,6 +144,7 @@ int main(int argc, char* argv[])
 			for (const auto& use_iter : pIter) {
 				cout << use_iter << ' ';
 			}
+			cout << std::endl;
         }
         else if (is_cmd(str, "show", "const")) {
 			auto&& pIter = inter::Interpreter::get_const_num();

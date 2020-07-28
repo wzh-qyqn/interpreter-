@@ -67,7 +67,7 @@ public:
     };
     /**
     * @brief 通用的数据类
-			
+	*	
     */
     class Base_Data {//自定义的基础数据类型兼容所有数据类型的基础类
     private:

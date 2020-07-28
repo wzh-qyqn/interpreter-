@@ -867,11 +867,6 @@ std::vector<inter::Char_Type> inter::Interpreter::get_const_opre() {
 	return buf;
 }
 
-/**
-* @brief 重置错误输出流
-* @param err：新的错误流
-* @return 无
-*/
 
 inter::Interpreter::_My_List_Iter inter::Interpreter::Binary_Operator::operation(void) {
 	Base_Data a, b;
