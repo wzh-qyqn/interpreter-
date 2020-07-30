@@ -25,10 +25,10 @@ public:
 	constexpr size_t row() const;//矩阵行数
 	constexpr size_t col() const;//矩阵列数
 	constexpr T* data()const;
-	constexpr T& loc(size_t lnum, size_t cnum) const;//访问矩阵元素，与C语言二维数组访问规则一致，从0~row-1 , 0~col-1
-	Matrix	transpos() const;			//矩阵转置
-	Matrix	alg_complem(size_t lnum, size_t cnum) const;//求指定坐标下的余子式
-	Matrix	adjoint()const; //求取伴随阵
+	constexpr T& at(size_t lnum, size_t cnum) const;//访问矩阵元素，与C语言二维数组访问规则一致，从0~row-1 , 0~col-1
+	Matrix	rev() const;			//矩阵转置
+	Matrix	alg(size_t lnum, size_t cnum) const;//求指定坐标下的余子式
+	Matrix	adj()const; //求取伴随阵
 	Matrix	inv()const;		//求逆阵
 	T		det() const;	//求取行列式的值
 	Matrix	operator=(const Matrix& pmat);
@@ -156,7 +156,7 @@ constexpr inline size_t Matrix<T>::col() const {
 
 //与C语言二维数组访问规则一致，从0~line-1 , 0~colum-1
 template<typename T>
-constexpr inline T& Matrix<T>::loc(size_t lnum, size_t cnum) const {
+constexpr inline T& Matrix<T>::at(size_t lnum, size_t cnum) const {
 	if (lnum >= row_num || cnum >= col_num) {
 		throw show_err("矩阵元素访问错误，可访问范围：0~", \
 			row_num-1 ," 0~", col_num-1,"输入访问的坐标值：", lnum," ,", cnum);
@@ -166,7 +166,7 @@ constexpr inline T& Matrix<T>::loc(size_t lnum, size_t cnum) const {
 
 //求指定坐标下的余子式
 template<typename T>
-inline Matrix<T> Matrix<T>::alg_complem(size_t lnum, size_t cnum) const {
+inline Matrix<T> Matrix<T>::alg(size_t lnum, size_t cnum) const {
 	T* pbuf;
 	if (lnum >= row_num || cnum >= col_num) {
 		throw inter_error("矩阵元素访问错误！");
@@ -175,7 +175,7 @@ inline Matrix<T> Matrix<T>::alg_complem(size_t lnum, size_t cnum) const {
 	for (size_t i = 0, k = 0; i < row_num; i++) {
 		for (size_t j = 0; j < col_num; j++) {
 			if (i != lnum&&j != cnum) {
-				pbuf[k] = loc(i, j);
+				pbuf[k] = at(i, j);
 				k++;
 			}
 		}
@@ -184,7 +184,7 @@ inline Matrix<T> Matrix<T>::alg_complem(size_t lnum, size_t cnum) const {
 }
 
 template<typename T>
-inline Matrix<T> Matrix<T>::adjoint() const {
+inline Matrix<T> Matrix<T>::adj() const {
 	T* pbuf;
 	if (row_num == 0 || col_num == 0)
 		return Matrix(0, 0);
@@ -194,7 +194,7 @@ inline Matrix<T> Matrix<T>::adjoint() const {
 	pbuf = new T[row_num*col_num];
 	for (size_t i = 0; i < row_num; i++) {
 		for (size_t j = 0; j < col_num; j++) {
-			pbuf[col_num*i + j] = ((j+i)%2?T(-1):T(1))*alg_complem(j, i).det();
+			pbuf[col_num*i + j] = ((j+i)%2?T(-1):T(1))*alg(j, i).det();
 		}
 	}
 	return Matrix(row_num, col_num, pbuf, false);
@@ -207,16 +207,16 @@ inline Matrix<T> Matrix<T>::inv() const {
 	if (res_det == T(0)) {
 		throw inter_error("矩阵为奇异阵无法求取逆阵");
 	}
-	return adjoint()*(T(1) / res_det);
+	return adj()*(T(1) / res_det);
 }
 
 //矩阵转置
 template<typename T>
-inline Matrix<T> Matrix<T>::transpos() const{
+inline Matrix<T> Matrix<T>::rev() const{
 	T* pbuf = new T[row_num*col_num];
 	for (size_t i = 0; i < col_num; i++) {
 		for (size_t j = 0; j < row_num; j++) {
-			pbuf[i*row_num + j] = loc(j, i);
+			pbuf[i*row_num + j] = at(j, i);
 		}
 	}
 	return Matrix(col_num, row_num, pbuf, false);
@@ -275,7 +275,7 @@ inline bool  Matrix<T>::operator==(const Matrix<T> &pmat) const {
 	}
 	for (size_t i = 0; i < row_num; i++) {
 		for (size_t j = 0; j < col_num; j++) {
-			if (loc(i, j) != pmat.loc(i, j))
+			if (at(i, j) != pmat.at(i, j))
 				return false;
 		}
 	}
@@ -296,7 +296,7 @@ inline Matrix<T> Matrix<T>::operator+(const Matrix<T> &pmat)const {
 	pFirst = new T[row_num*col_num];
 	for (size_t i = 0; i < row_num; i++) {
 		for (size_t j = 0; j < col_num; j++) {
-			pFirst[col_num*i + j] = loc(i, j) + pmat.loc(i, j);
+			pFirst[col_num*i + j] = at(i, j) + pmat.at(i, j);
 		}
 	}
 	return Matrix(row_num, col_num, pFirst, false);
@@ -310,7 +310,7 @@ inline Matrix<T> Matrix<T>::operator-(const Matrix<T> &pmat)const {
 	pFirst = new T[row_num*col_num];
 	for (size_t i = 0; i < row_num; i++) {
 		for (size_t j = 0; j < col_num; j++) {
-			pFirst[col_num*i + j] = loc(i, j) - pmat.loc(i, j);
+			pFirst[col_num*i + j] = at(i, j) - pmat.at(i, j);
 		}
 	}
 	return Matrix(row_num, col_num, pFirst, false);
@@ -321,7 +321,7 @@ inline Matrix<T> Matrix<T>::operator*(const T &pnum)const {
 	pFirst = new T[row_num*col_num];
 	for (size_t i = 0; i < row_num; i++) {
 		for (size_t j = 0; j < col_num; j++) {
-			pFirst[col_num*i + j] = loc(i, j)*pnum;
+			pFirst[col_num*i + j] = at(i, j)*pnum;
 		}
 	}
 	return Matrix(row_num, col_num, pFirst, false);
@@ -336,9 +336,9 @@ inline Matrix<T> Matrix<T>::operator*(const Matrix<T> &pmat)const {
 	pFirst = new T[row_num*pmat.col_num];
 	for (size_t i = 0; i < row_num; i++) {
 		for (size_t j = 0; j < pmat.col_num; j++) {
-			pFirst[pmat.col_num*i + j] = loc(i, 0)*pmat.loc(0, j);
+			pFirst[pmat.col_num*i + j] = at(i, 0)*pmat.at(0, j);
 			for (size_t m = 1; m < col_num; m++) {
-				pFirst[pmat.col_num*i + j] += loc(i, m)*pmat.loc(m, j);
+				pFirst[pmat.col_num*i + j] += at(i, m)*pmat.at(m, j);
 			}
 		}
 	}

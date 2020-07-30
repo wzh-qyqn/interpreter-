@@ -18,7 +18,7 @@ static inline Cmatrix_Type Num_To_Complex(const Matrix_Type& a) {
 	pbuf = new Complex_Type[row_num*col_num];
 	for (size_t i = 0; i < row_num; i++) {
 		for (size_t j = 0; j < col_num; j++) {
-			pbuf[i] = a.loc(i, j);
+			pbuf[i] = a.at(i, j);
 		}
 	}
 	return Cmatrix_Type(row_num, col_num, pbuf, false);
@@ -516,7 +516,7 @@ static inline Matrix_Type rtgamma(const Matrix_Type* a1) {
 	pbuf = new Num_Type[row_num*col_num];
 	for (size_t i = 0; i<row_num; i++) {
 		for (size_t j = 0; j<col_num; j++) {
-			pbuf[i*col_num + j] = tgamma(a1->loc(i, j));
+			pbuf[i*col_num + j] = tgamma(a1->at(i, j));
 		}
 	}
 	return Matrix_Type(row_num, col_num, pbuf, false);
@@ -559,10 +559,10 @@ static inline Num_Type rcol(const Cmatrix_Type* a) {
 	return Num_Type(a->col());
 }
 static inline Matrix_Type rtranse(const Matrix_Type* a) {
-	return a->transpos();
+	return a->rev();
 }
 static inline Cmatrix_Type rtranse(const Cmatrix_Type* a) {
-	return a->transpos();
+	return a->rev();
 }
 static inline Num_Type rsize(const Interpreter::_Data_Array* pvec) {
 	return Num_Type(pvec->size());
@@ -897,7 +897,7 @@ static inline Interpreter::_Data_Array rarray(const Matrix_Type* a) {
 	Interpreter::_Data_Array pvec;
 	for (size_t i = 0; i < a->row(); i++) {
 		for (size_t j = 0; j < a->col(); j++) {
-			pvec.push_back(Use_Data(a->loc(i, j)));
+			pvec.push_back(Use_Data(a->at(i, j)));
 		}
 	}
 	return pvec;
@@ -906,7 +906,7 @@ static inline Interpreter::_Data_Array rarray(const Cmatrix_Type* a) {
 	Interpreter::_Data_Array pvec;
 	for (size_t i = 0; i < a->row(); i++) {
 		for (size_t j = 0; j < a->col(); j++) {
-			pvec.push_back(Use_Data(a->loc(i, j)));
+			pvec.push_back(Use_Data(a->at(i, j)));
 		}
 	}
 	return pvec;
@@ -1313,7 +1313,7 @@ Use_Data rdim(const Use_Data& a) {
 												pbuf = new Num_Type[row_num*col_num];\
 												for (size_t i = 0; i<row_num; i++) {\
 													for (size_t j = 0; j<col_num; j++) {\
-														pbuf[i*col_num + j] = name##(a1->loc(i, j));\
+														pbuf[i*col_num + j] = name##(a1->at(i, j));\
 													}\
 												}\
 												return Matrix_Type(row_num, col_num, pbuf, false);\
@@ -1325,7 +1325,7 @@ Use_Data rdim(const Use_Data& a) {
 												pbuf = new Complex_Type[row_num*col_num];\
 												for (size_t i = 0; i<row_num; i++) {\
 													for (size_t j = 0; j<col_num; j++) {\
-														pbuf[i*col_num + j] = name##(a1->loc(i, j));\
+														pbuf[i*col_num + j] = name##(a1->at(i, j));\
 													}\
 												}\
 												return Cmatrix_Type(row_num, col_num, pbuf, false);\

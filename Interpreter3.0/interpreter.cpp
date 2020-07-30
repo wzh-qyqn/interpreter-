@@ -413,7 +413,7 @@ inter::Ostr_Type& inter::operator<<(inter::Ostr_Type&os, const inter::Interprete
 		pData.get_data(a);
 		for (size_t i = 0; i < a->row(); i++) {
 			for (size_t j = 0; j < a->col(); j++) {
-				os << a->loc(i, j) << ' ';
+				os << a->at(i, j) << ' ';
 			}
 			os << std::endl;
 		}
@@ -424,7 +424,7 @@ inter::Ostr_Type& inter::operator<<(inter::Ostr_Type&os, const inter::Interprete
 		pData.get_data(a);
 		for (size_t i = 0; i < a->row(); i++) {
 			for (size_t j = 0; j < a->col(); j++) {
-				Complex_Type pbuf = a->loc(i, j);
+				Complex_Type pbuf = a->at(i, j);
 				os << pbuf.real();
 				if (pbuf.imag() >= 0)
 					os << '+';
@@ -1315,7 +1315,7 @@ void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Ma
 				throw show_err("行向量赋值失败，维数不统一");
 			}
 			for (size_t i = 0; i < rmat->col(); i++) {
-				lmat->loc(xpos, i) = rmat->loc(0, i);
+				lmat->at(xpos, i) = rmat->at(0, i);
 			}
 		}
 		else {
@@ -1329,7 +1329,7 @@ void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Ma
 				pbuf[i] = lmat->data()[i];
 			}
 			for (size_t i = 0; i < lmat->col(); i++) {
-				pbuf[xpos*lmat->col() + i] = rmat->loc(0, i);
+				pbuf[xpos*lmat->col() + i] = rmat->at(0, i);
 			}
 			pmap->data_change(paddr, Base_Data(Cmatrix_Type(lmat->row(), lmat->col(), pbuf, false)));
 
@@ -1345,7 +1345,7 @@ void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Ma
 				throw show_err("行向量赋值失败，维数不统一");
 			}
 			for (size_t i = 0; i < rmat->col(); i++) {
-				lmat->loc(xpos, i) = rmat->loc(0, i);
+				lmat->at(xpos, i) = rmat->at(0, i);
 			}
 		}
 		else {
@@ -1355,7 +1355,7 @@ void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Ma
 				throw show_err("行向量赋值失败，维数不统一");
 			}
 			for (size_t i = 0; i < rmat->col(); i++) {
-				lmat->loc(xpos, i) = rmat->loc(0, i);
+				lmat->at(xpos, i) = rmat->at(0, i);
 			}
 		}
 		break;
@@ -1365,12 +1365,12 @@ void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Ma
 		if (num_data.get_type() == DATA_DOUBLE) {
 			Num_Type rnum;
 			num_data.get_data(rnum);
-			lmat->loc(xpos, ypos) = rnum;
+			lmat->at(xpos, ypos) = rnum;
 		}
 		else if (num_data.get_type() == DATA_BOOL) {
 			bool rnum;
 			num_data.get_data(rnum);
-			lmat->loc(xpos, ypos) = Num_Type(rnum);
+			lmat->at(xpos, ypos) = Num_Type(rnum);
 		}
 		else {
 			Complex_Type rnum;
@@ -1389,17 +1389,17 @@ void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Ma
 		if (num_data.get_type() == DATA_DOUBLE) {
 			Num_Type rnum;
 			num_data.get_data(rnum);
-			lmat->loc(xpos, ypos) = rnum;
+			lmat->at(xpos, ypos) = rnum;
 		}
 		else if (num_data.get_type() == DATA_BOOL) {
 			bool rnum;
 			num_data.get_data(rnum);
-			lmat->loc(xpos, ypos) = Num_Type(rnum);
+			lmat->at(xpos, ypos) = Num_Type(rnum);
 		}
 		else {
 			Complex_Type rnum;
 			num_data.get_data(rnum);
-			lmat->loc(xpos, ypos) = rnum;
+			lmat->at(xpos, ypos) = rnum;
 		}
 		break;
 	}
@@ -1420,7 +1420,7 @@ void inter::Interpreter::Node_Elem_Num::get_data(Base_Data & num_data) {
 		size_t lcol = lmat->col();
 		Num_Type* pbuf = new Num_Type[lcol];
 		for (size_t i = 0; i < lcol; i++) {
-			pbuf[i] = lmat->loc(xpos, i);
+			pbuf[i] = lmat->at(xpos, i);
 		}
 		num_data = Base_Data(Matrix_Type(1, lcol, pbuf, false));
 		break;
@@ -1430,17 +1430,17 @@ void inter::Interpreter::Node_Elem_Num::get_data(Base_Data & num_data) {
 		size_t lcol = lmat->col();
 		Complex_Type* pbuf = new Complex_Type[lcol];
 		for (size_t i = 0; i < lcol; i++) {
-			pbuf[i] = lmat->loc(xpos, i);
+			pbuf[i] = lmat->at(xpos, i);
 		}
 		num_data = Base_Data(Cmatrix_Type(1, lcol, pbuf, false));
 		break;
 	}
 	case MATRIX_2: {
-		num_data = Base_Data(reinterpret_cast<Matrix_Type*>(paddr)->loc(xpos, ypos));
+		num_data = Base_Data(reinterpret_cast<Matrix_Type*>(paddr)->at(xpos, ypos));
 		break;
 	}
 	case CMATRIX_2: {
-		num_data = Base_Data(reinterpret_cast<Cmatrix_Type*>(paddr)->loc(xpos, ypos));
+		num_data = Base_Data(reinterpret_cast<Cmatrix_Type*>(paddr)->at(xpos, ypos));
 		break;
 	}
 	default:

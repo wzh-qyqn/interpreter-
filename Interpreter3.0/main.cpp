@@ -220,7 +220,7 @@ template<typename T>
 std::ostream& operator<< (std::ostream& os, const inter::Matrix<T>& pmat) {
 	for (size_t i = 0; i < pmat.row(); i++) {
 		for (size_t j = 0; j < pmat.col(); j++) {
-			os << pmat.loc(i, j) << ' ';
+			os << pmat.at(i, j) << ' ';
 		}
 		os << std::endl;
 	}
@@ -237,10 +237,10 @@ int main(void) {
 	cout << test;
 	
 	cout << "trans test:" << endl;
-	test = test.transpos();
+	test = test.rev();
 	for (unsigned int i = 0; i < test.row(); i++) {
 		for (unsigned int j = 0; j < test.col(); j++) {
-			cout << test.loc(i, j) << ' ';
+			cout << test.at(i, j) << ' ';
 		}
 		cout << endl;
 	}
