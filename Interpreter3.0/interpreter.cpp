@@ -302,7 +302,7 @@ void inter::Interpreter::Base_Data::get_data(Num_Type & res) const {
 			res = *reinterpret_cast<Num_Type*>(data);
 		}
 		else
-			throw show_err("数据类型错误，格式不匹配");
+			throw show_err("数据类型：",data_to_str(d_type),"试图获取实数数据");
 	}
 	else
 		throw show_err("试图查询未初始化的数值类型");
@@ -314,7 +314,7 @@ void inter::Interpreter::Base_Data::get_data(Complex_Type & res) const {
 			res = *reinterpret_cast<Complex_Type*>(data);
 		}
 		else
-			throw show_err("数据类型错误，格式不匹配");
+			throw show_err("数据类型：", data_to_str(d_type), "试图获取复数数据");
 	}
 	else
 		throw show_err("试图查询未初始化的数值类型");
@@ -326,7 +326,7 @@ void inter::Interpreter::Base_Data::get_data(bool & res) const {
 			res = *reinterpret_cast<bool*>(data);
 		}
 		else
-			throw show_err("数据类型错误，格式不匹配");
+			throw show_err("数据类型：", data_to_str(d_type), "试图获取逻辑类型数据");
 	}
 	else
 		throw show_err("试图查询未初始化的数值类型");
@@ -338,7 +338,7 @@ void inter::Interpreter::Base_Data::get_data(const _Data_Array *& res) const {
 			res = reinterpret_cast<const _Data_Array *>(data);
 		}
 		else
-			throw show_err("数据类型错误，格式不匹配");
+			throw show_err("数据类型：", data_to_str(d_type), "试图获取数组数据");
 	}
 	else
 		throw show_err("试图查询未初始化的数值类型");
@@ -350,7 +350,7 @@ void inter::Interpreter::Base_Data::get_data(const Matrix_Type *& res) const{
 			res = reinterpret_cast<const Matrix_Type*>(data);
 		}
 		else
-			throw show_err("数据类型错误，格式不匹配");
+			throw show_err("数据类型：", data_to_str(d_type), "试图获取矩阵数据");
 	}
 	else
 		throw show_err("试图查询未初始化的数值类型");
@@ -362,7 +362,7 @@ void inter::Interpreter::Base_Data::get_data(const Cmatrix_Type *& res) const{
 			res = reinterpret_cast<const Cmatrix_Type*>(data);
 		}
 		else
-			throw show_err("数据类型错误，格式不匹配");
+			throw show_err("数据类型：", data_to_str(d_type), "试图获取复数矩阵数据");
 	}
 	else
 		throw show_err("试图查询未初始化的数值类型");
@@ -487,23 +487,23 @@ inter::Interpreter::_My_List * inter::Interpreter::Base_Item::get_master() {
 
 //留待符合条件的节点重定义虚函数
 void inter::Interpreter::Base_Item::get_data(Base_Data & num_data) {
-	throw show_err("数值获取错误，错误节点属性：", i_type);
+	throw show_err("数值获取错误，错误节点属性：", item_to_str(i_type));
 }
 
 void inter::Interpreter::Base_Item::get_data(size_t & num) {
-	throw show_err("偏移量获取错误，错误节点属性：", i_type);
+	throw show_err("偏移量获取错误，错误节点属性：", item_to_str(i_type));
 }
 
 void inter::Interpreter::Base_Item::get_data(Str_Type & usestr) {
-	throw show_err("字符串获取错误，错误节点属性：", i_type);
+	throw show_err("字符串获取错误，错误节点属性：", item_to_str(i_type));
 }
 
 void inter::Interpreter::Base_Item::get_data(_My_List *& uselist) {
-	throw show_err("链表指针获取错误，错误节点属性：", i_type);
+	throw show_err("链表指针获取错误，错误节点属性：", item_to_str(i_type));
 }
 
 void inter::Interpreter::Base_Item::get_data(_Data_Array *& usevector) {
-	throw show_err("向量指针获取错误，错误节点属性：", i_type);
+	throw show_err("向量指针获取错误，错误节点属性：", item_to_str(i_type));
 }
 
 
@@ -566,6 +566,74 @@ inter::Interpreter::Base_Item::~Base_Item() {
 * @param uselist:要化简的链表
 * @return 无
 */
+inline const char * inter::Interpreter::base_to_str(Base_Type b_type) {
+	switch (b_type) {
+	case BASE_NUM:
+		return "数据型";
+	case BASE_STRING:
+		return "字符串型";
+	case BASE_INT:
+		return "符号型";
+	case BASE_EMPTY:
+		return "空型";
+	case BASE_LIST:
+		return "链表型";
+	case BASE_VECTOR:
+		return "数组型";
+	default:
+		return "未知类型";
+	}
+}
+inline const char * inter::Interpreter::item_to_str(Item_Type i_type) {
+	switch (i_type) {
+	case BINARY_OPERATOR:
+		return "二元操作符";
+	case STATIC_FUNCTION:
+		return "静态函数";
+	case UNARY_OPERATOR:
+		return "单目运算符";
+	case ASSIGNMENT_OPERATOR:
+		return "赋值运算符";
+	case NUM:
+		return "数值节点";
+	case NUM_ELEME:
+		return "标签数值节点";
+	case NUM_VARIBLE:
+		return "变量";
+	case BRACKET_OPERATOR:
+		return "括号运算符";
+	case SQ_BEACKET_OPERATOR:
+		return "方括号运算符";
+	case DIVIDE_OPERATOR:
+		return "矩阵行分隔符";
+	case SPACE_OPERATOR:
+		return "矩阵元素分隔符";
+	case COMMA_OPRERATOR:
+		return "逗号运算符";
+	case UNDEF_NAME:
+		return "未定义名字节点";
+	default:
+		return "未知节点";
+	}
+}
+inline const char * inter::Interpreter::data_to_str(Data_Type d_type) {
+	switch (d_type) {
+	case DATA_ARRAY:
+		return "Base_Data数组";
+	case DATA_BOOL:
+		return "bool逻辑类型";
+	case DATA_CMATRIX:
+		return "复数矩阵类型";
+	case DATA_COMPLEX:
+		return "复数类型";
+	case DATA_DOUBLE:
+		return "实数类型";
+	case DATA_MATRIX:
+		return "实数矩阵类型";
+	default:
+		return "未知类型";
+	}
+}
 void inter::Interpreter::simply_express(_My_List & uselist) {
 	for (int i = bracket_prority; i > 0; i--) {
 		Base_Item* pbuf;
@@ -897,7 +965,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Binary_Operator::operation
 	}
 	node_priv->get_data(a);						//获取数据（不是num节点会自动抛出异常)
 	auto&& res = binary_func[num].func(a, b);	//对数据进行对应的运算
-	use_iter = instead(new Noraml_Num(res));		//用计算结果的num节点替换掉自己
+	use_iter = instead(new Noraml_Num(res));	//用计算结果的num节点替换掉自己
 	delete node_priv;							//删除左端的节点
 	delete node_next;							//删除右端的节点
 	return use_iter;							//返回新的迭代器

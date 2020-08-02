@@ -134,6 +134,7 @@ private:
         }
         return i;
     }
+
     //二元运算符键值对
     struct Binary_Func {
         Char_Type		name;	//运算符的字符值								
@@ -199,6 +200,9 @@ private:
         COMMA_OPRERATOR,    //逗号运算符
         UNDEF_NAME,			//还未定义的名字	
     };
+	static const char* base_to_str(Base_Type b_type);
+	static const char* item_to_str(Item_Type i_type);
+	static const char* data_to_str(Data_Type d_type);
     /**
     * @brief 节点的基类
     *		所有的运行过程中的节点都由此节点派生而来，下面描述一下整个类工作的大致流程
