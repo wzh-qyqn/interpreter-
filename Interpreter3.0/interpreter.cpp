@@ -719,8 +719,8 @@ size_t inter::Interpreter::symbol_string(_My_List & buf_list, const Char_Type * 
 			const Str_Type use_name(str, i - name_offset, name_offset);
 			Base_Data pnum;
 
-			if ((offset = is_in_store(const_BaseData, use_name)) != const_BaseData_num) {
-				new Noraml_Num(main_list, const_BaseData[offset].num);
+			if ((offset = is_in_store(const_BaseData, use_name)) != const_BaseData.size) {
+				new Noraml_Num(main_list, const_BaseData.store[offset].num);
 			}
 			else if (use_name == result_string) {
 				new Noraml_Num(main_list, final_result.get_shadow());
@@ -728,7 +728,7 @@ size_t inter::Interpreter::symbol_string(_My_List & buf_list, const Char_Type * 
 			else if (main_var.find_in(use_name, pnum)) {
 				new Varible_Num(main_list, pnum);
 			}
-			else if ((offset = is_in_store(singlevar_func, use_name)) != singlevar_func_num) {
+			else if ((offset = is_in_store(singlevar_func, use_name)) != singlevar_func.size) {
 				new Static_Function(main_list, offset);
 			}
 			else {
@@ -737,11 +737,11 @@ size_t inter::Interpreter::symbol_string(_My_List & buf_list, const Char_Type * 
 			name_offset = 0;
 		}
 		//这里要改进
-		if ((offset = is_in_store(binary_func, str[i])) != binary_func_num) {
+		if ((offset = is_in_store(binary_func, str[i])) != binary_func.size) {
 			new Binary_Operator(main_list, offset);
 			continue;
 		}
-		if ((offset = is_in_store(unary_func, str[i])) != unary_func_num) {
+		if ((offset = is_in_store(unary_func, str[i])) != unary_func.size) {
 			new Unary_Operator(main_list, offset);
 			continue;
 		}
@@ -898,8 +898,8 @@ void inter::Interpreter::clear() {
 std::vector<inter::Str_Type> inter::Interpreter::get_const_num() {
 	std::vector<inter::Str_Type> buf;
 	buf.push_back(result_string);
-	for (const auto &pIter : const_BaseData) {
-		buf.push_back(pIter.name);
+	for (size_t i = 0; i < const_BaseData.size; i++) {
+		buf.push_back(const_BaseData.store[i].name);
 	}
 	return buf;
 }
@@ -912,8 +912,8 @@ std::vector<inter::Str_Type> inter::Interpreter::get_const_num() {
 
 std::vector<inter::Str_Type> inter::Interpreter::get_const_func() {
 	std::vector<inter::Str_Type> buf;
-	for (const auto &pIter : singlevar_func) {
-		buf.push_back(pIter.name);
+	for (size_t i = 0; i < singlevar_func.size; i++) {
+		buf.push_back(singlevar_func.store[i].name);
 	}
 	return buf;
 }
@@ -926,11 +926,11 @@ std::vector<inter::Str_Type> inter::Interpreter::get_const_func() {
 
 std::vector<inter::Char_Type> inter::Interpreter::get_const_opre() {
 	std::vector<inter::Char_Type> buf;
-	for (const auto &pIter : binary_func) {
-		buf.push_back(pIter.name);
+	for (size_t i = 0; i < binary_func.size; i++) {
+		buf.push_back(binary_func.store[i].name);
 	}
-	for (const auto &pIter : unary_func) {
-		buf.push_back(pIter.name);
+	for (size_t i = 0; i < unary_func.size; i++) {
+		buf.push_back(unary_func.store[i].name);
 	}
 	return buf;
 }
@@ -941,30 +941,30 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Binary_Operator::operation
 	_My_List_Iter use_iter;
 	bool signflag=false;
 	if (this == get_master()->back()) //右端没有节点
-		throw show_err("运算符'", binary_func[num].name, "'使用错误！");
+		throw show_err("运算符'", binary_func.store[num].name, "'使用错误！");
 	Base_Item* node_next = *(++get_iter());		//获取右端节点指针
 	node_next->get_data(b);						//获取数据（不是num节点会自动抛出异常)
-	if (binary_func[num].name == '-') {
+	if (binary_func.store[num].name == '-') {
 		signflag = true;
 	}
 	if (this == get_master()->front()) {		//左端没有节点
 		if (signflag) {//可能是负号
-			auto&& res = binary_func[is_in_store(binary_func, '*')].func(Base_Data(Num_Type(-1)), b);//调用乘法计算
+			auto&& res = binary_func.store[is_in_store(binary_func, '*')].func(Base_Data(Num_Type(-1)), b);//调用乘法计算
 			use_iter = instead(new Noraml_Num(res));
 			delete node_next;
 			return use_iter;
 		}
-		throw show_err("运算符'", binary_func[num].name, "'使用错误！");
+		throw show_err("运算符'", binary_func.store[num].name, "'使用错误！");
 	}
 	Base_Item* node_priv = *(--get_iter());		//获取左端的节点指针
 	if (signflag && node_priv->get_base() != BASE_NUM) {//可能负号
-		auto&& res = binary_func[is_in_store(binary_func,'*')].func(Base_Data(Num_Type(-1)), b);//调用乘法计算
+		auto&& res = binary_func.store[is_in_store(binary_func,'*')].func(Base_Data(Num_Type(-1)), b);//调用乘法计算
 		use_iter = instead(new Noraml_Num(res));
 		delete node_next;
 		return use_iter;
 	}
 	node_priv->get_data(a);						//获取数据（不是num节点会自动抛出异常)
-	auto&& res = binary_func[num].func(a, b);	//对数据进行对应的运算
+	auto&& res = binary_func.store[num].func(a, b);	//对数据进行对应的运算
 	use_iter = instead(new Noraml_Num(res));	//用计算结果的num节点替换掉自己
 	delete node_priv;							//删除左端的节点
 	delete node_next;							//删除右端的节点
@@ -1130,11 +1130,11 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Static_Function::operation
 	Base_Data a;
 	_My_List_Iter use_iter;
 	if (this == get_master()->back()) {
-		throw show_err("'", singlevar_func[num].name, "' 函数后面缺少参数");
+		throw show_err("'", singlevar_func.store[num].name, "' 函数后面缺少参数");
 	}
 	Base_Item* node_next = *(++get_iter());
 	node_next->get_data(a);
-	auto&& res = singlevar_func[num].func(a);
+	auto&& res = singlevar_func.store[num].func(a);
 	use_iter = instead(new Noraml_Num(res));
 	delete node_next;
 	return use_iter;
@@ -1145,11 +1145,11 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Unary_Operator::operation(
 	Complex_Type coma;
 	_My_List_Iter use_iter;
 	if (this == get_master()->front()) {
-		throw show_err("运算符'", unary_func[num].name, "'使用错误！");
+		throw show_err("运算符'", unary_func.store[num].name, "'使用错误！");
 	}
 	Base_Item* node_priv = *(--get_iter());
 	node_priv->get_data(a);
-	auto&& res = unary_func[num].func(a);
+	auto&& res = unary_func.store[num].func(a);
 	use_iter = instead(new Noraml_Num(res));
 	delete node_priv;
 	return use_iter;
@@ -1210,8 +1210,7 @@ bool inter::Interpreter::Variable_Map::find_in(const Str_Type & pstr, Base_Data 
 		return false;
 }
 
-bool inter::Interpreter::Variable_Map::find_in(const void * paddr, _My_Map_Iter & pIter)
-{
+bool inter::Interpreter::Variable_Map::find_in(const void * paddr, _My_Map_Iter & pIter){
 	auto &&ret = var_p_map.find(paddr);
 	if (ret != var_p_map.end()) {
 		pIter = ret->second;

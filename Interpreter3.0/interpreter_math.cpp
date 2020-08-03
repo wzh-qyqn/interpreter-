@@ -1385,37 +1385,39 @@ static inline Use_Data rsum(const Interpreter::_Data_Array* pvec) {
 	return pdata;
 }
 ARRAY_FUNCTION_DECLARE(rsum)
-}
-
-const std::array<Interpreter::Binary_Func, Interpreter::binary_func_num>Interpreter::binary_func = {
-    '+',4,uraddition,
-    '-',4,ursubstration,
-    '*',5,urmultiply,
-    '/',5,urdivision,
-    '%',5,urmod,
-    '^',6,urpow,
-    '>',3,urgreater,
-    '<',3,urless,
+const Interpreter::Binary_Func_Pair sbinary_func[] = {
+	'+',4,uraddition,
+	'-',4,ursubstration,
+	'*',5,urmultiply,
+	'/',5,urdivision,
+	'%',5,urmod,
+	'^',6,urpow,
+	'>',3,urgreater,
+	'<',3,urless,
 };
-const std::array<Interpreter::SingleVar_Func, Interpreter::singlevar_func_num>Interpreter::singlevar_func = {
-    "sin"	,ursin,
-    "cos"	,urcos,
-    "tan"	,urtan,
-    "acos"	,uracos,
-    "asin"	,urasin,
-    "atan"	,uratan,
-    "abs"	,urabs,
-    "log"	,urlog10,
-    "ln"	,urlog,
-    "sinh"	,ursinh,
-    "cosh"	,urcosh,
-    "tanh"	,urtanh,
-    "asinh"	,urasinh,
-    "acosh"	,uracosh,
-    "atanh"	,uratanh,
-    "exp"	,urexp,
-    "real"	,urreal,
-    "imag"	,urimag,
+const Interpreter::Unary_Func_Pair sunary_func[] = {
+	'!',8,urtgamma,
+	'`',8,mrtranse,
+};
+const Interpreter::SingleVar_Func_Pair ssinglevar_func[] = {
+	"sin"	,ursin,
+	"cos"	,urcos,
+	"tan"	,urtan,
+	"acos"	,uracos,
+	"asin"	,urasin,
+	"atan"	,uratan,
+	"abs"	,urabs,
+	"log"	,urlog10,
+	"ln"	,urlog,
+	"sinh"	,ursinh,
+	"cosh"	,urcosh,
+	"tanh"	,urtanh,
+	"asinh"	,urasinh,
+	"acosh"	,uracosh,
+	"atanh"	,uratanh,
+	"exp"	,urexp,
+	"real"	,urreal,
+	"imag"	,urimag,
 	"det"	,mrdet,
 	"inv" ,mrreverse,
 	"row"	,mrrow,
@@ -1433,19 +1435,24 @@ const std::array<Interpreter::SingleVar_Func, Interpreter::singlevar_func_num>In
 	"zero",rzero,
 	"dim",rdim
 };
-const std::array<Interpreter::Unary_Func, \
-    Interpreter::unary_func_num>Interpreter::unary_func = {
-    '!',8,urtgamma,
-	'`',8,mrtranse,
+const Interpreter::Const_Num_Pair sconst_BaseData[] = {
+	"pi",Use_Data(Num_Type(3.14159265358979323846)),
+	"e",Use_Data(Num_Type(2.71828182845904523536)),
+	"i",Use_Data(Complex_Type(0,1)),
+	"j",Use_Data(Complex_Type(0,1)),
+	"true",Use_Data(bool(true)),
+	"false",Use_Data(bool(false)),
 };
-const std::array<Interpreter::Const_Num, \
-    Interpreter::const_BaseData_num>Interpreter::const_BaseData = {
-    "pi",Use_Data(Num_Type(3.14159265358979323846)),
-    "e",Use_Data(Num_Type(2.71828182845904523536)),
-    "i",Use_Data(Complex_Type(0,1)),
-    "j",Use_Data(Complex_Type(0,1)),
-    "true",Use_Data(bool(true)),
-    "false",Use_Data(bool(false)),
-};
+
+}
+const Interpreter::StaticVar_Func Interpreter::singlevar_func\
+(ssinglevar_func, sizeof(ssinglevar_func)/sizeof(ssinglevar_func[0]));
+const Interpreter::Binary_Func Interpreter::binary_func\
+(sbinary_func, sizeof(sbinary_func) / sizeof(sbinary_func[0]));
+const Interpreter::Unary_Func Interpreter::unary_func\
+(sunary_func, sizeof(sunary_func) / sizeof(sunary_func[0]));
+const Interpreter::Const_Num Interpreter::const_BaseData\
+(sconst_BaseData, sizeof(sconst_BaseData) / sizeof(sconst_BaseData[0]));
+
 const Str_Type Interpreter::result_string = "ans";
 std::ostream* Interpreter::os_err = &std::cerr;

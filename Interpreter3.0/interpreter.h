@@ -107,6 +107,28 @@ public:
 		void get_data(const Cmatrix_Type*&)const;
 		~Base_Data();
     };
+	//二元运算符键值对
+	struct Binary_Func_Pair {
+		Char_Type		name;	//运算符的字符值								
+		int priority;			//运算优先级值越大越高
+		Base_Data(*func)(const Base_Data&, const Base_Data&);//函数指针
+	};
+	//一元运算符键值对
+	struct Unary_Func_Pair {
+		Char_Type		name;	//运算符的字符值
+		int priority;			//运算优先级值越大越高
+		Base_Data(*func)(const Base_Data&);//函数指针
+	};
+	//单变量函数
+	struct SingleVar_Func_Pair {
+		Str_Type name;		//函数名
+		Base_Data(*func)(const Base_Data&);//函数指针
+	};
+	//常量
+	struct Const_Num_Pair {
+		Str_Type name;
+		Base_Data num;
+	};
 private:
     class Base_Item;
     typedef std::list<Base_Item*> _My_List;
@@ -126,42 +148,40 @@ private:
     * @return int	偏移量，未寻找到返回存储空间的最大存储量
     */
     template<typename Tx, typename Ty>
-    static inline size_t is_in_store(const Tx& store, const Ty& name) {
+    static inline size_t is_in_store(const Tx& puse, const Ty& name) {
         size_t i = 0;
-        for (; i < store.size(); i++) {
-            if (store[i].name == name)
+        for (; i < puse.size; i++) {
+            if (puse.store[i].name == name)
                 return i;
         }
         return i;
     }
 
-    //二元运算符键值对
-    struct Binary_Func {
-        Char_Type		name;	//运算符的字符值								
-        int priority;			//运算优先级值越大越高
-        Base_Data(*func)(const Base_Data&, const Base_Data&);//函数指针
-    };
-    //一元运算符键值对
-    struct Unary_Func {
-        Char_Type		name;	//运算符的字符值
-        int priority;			//运算优先级值越大越高
-        Base_Data(*func)(const Base_Data&);//函数指针
-    };
-    //单变量函数
-    struct SingleVar_Func {
-        Str_Type name;		//函数名
-        Base_Data(*func)(const Base_Data&);//函数指针
-    };
-	//常量
-    struct Const_Num {
-        Str_Type name;
-        Base_Data num;
-    };
-    //各种键值对的个数
-    static const size_t binary_func_num		= 8;		//二元运算符个数
-    static const size_t singlevar_func_num	= 34;		//单变量函数个数
-    static const size_t unary_func_num		= 2;		//单目运算符个数
-	static const size_t const_BaseData_num	= 6;		//常量个数
+	struct StaticVar_Func {
+		const SingleVar_Func_Pair *store;
+		const size_t size;
+		StaticVar_Func(const SingleVar_Func_Pair * pstore, size_t psize) :
+			store(pstore), size(psize) {};
+	};
+	struct Binary_Func {
+		const Binary_Func_Pair *store;
+		const size_t size;
+		Binary_Func(const Binary_Func_Pair * pstore, size_t psize) :
+			store(pstore), size(psize) {};
+	};
+	struct Unary_Func {
+		const Unary_Func_Pair *store;
+		const size_t size;
+		Unary_Func(const Unary_Func_Pair * pstore, size_t psize) :
+			store(pstore), size(psize) {};
+	};
+	struct Const_Num {
+		const Const_Num_Pair *store;
+		const size_t size;
+		Const_Num(const Const_Num_Pair * pstore, size_t psize) :
+			store(pstore), size(psize) {};
+	};
+
 
 	//优先级若修改可能会导致语义异常，慎重
     static const size_t singlevar_priority	= 7;		//单变量函数的优先级
@@ -170,10 +190,11 @@ private:
     static const size_t bracket_prority		= 9;		//括号优先级
     
     static const Str_Type result_string;				//表示上一次运行结果的字符串，默认为ans
-    static const std::array<Binary_Func, binary_func_num>binary_func;
-    static const std::array<SingleVar_Func, singlevar_func_num>singlevar_func;
-    static const std::array<Unary_Func, unary_func_num>unary_func;
-    static const std::array<Const_Num, const_BaseData_num>const_BaseData;
+	static const StaticVar_Func singlevar_func;
+	static const Binary_Func binary_func;
+	static const Unary_Func unary_func;
+	static const Const_Num const_BaseData;
+
     static std::ostream* os_err;
     //表示节点的基础数据类型,代表了节点附加的值
     enum Base_Type {
@@ -389,9 +410,9 @@ private:
     class Binary_Operator :public Node_Int {
     public:
         Binary_Operator(_My_List* baselist, size_t offset) :
-            Node_Int(baselist, BINARY_OPERATOR, offset, binary_func[offset].priority) {}
+            Node_Int(baselist, BINARY_OPERATOR, offset, binary_func.store[offset].priority) {}
         Binary_Operator(size_t offset) :
-            Node_Int(BINARY_OPERATOR, offset, binary_func[offset].priority) {}
+            Node_Int(BINARY_OPERATOR, offset, binary_func.store[offset].priority) {}
         virtual ~Binary_Operator() {}
 		virtual _My_List_Iter operation(void)override;
     };
@@ -455,9 +476,9 @@ private:
     class Unary_Operator :public Node_Int {
     public:
         Unary_Operator(_My_List* baselist, size_t offset) :
-            Node_Int(baselist, UNARY_OPERATOR, offset, unary_func[offset].priority) {}
+            Node_Int(baselist, UNARY_OPERATOR, offset, unary_func.store[offset].priority) {}
         Unary_Operator(size_t offset) :
-            Node_Int(UNARY_OPERATOR, offset, unary_func[offset].priority) {}
+            Node_Int(UNARY_OPERATOR, offset, unary_func.store[offset].priority) {}
 		virtual _My_List_Iter operation(void)override;
     };
     /**
