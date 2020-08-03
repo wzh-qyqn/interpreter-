@@ -18,7 +18,7 @@ static inline Cmatrix_Type Num_To_Complex(const Matrix_Type& a) {
 	pbuf = new Complex_Type[row_num*col_num];
 	for (size_t i = 0; i < row_num; i++) {
 		for (size_t j = 0; j < col_num; j++) {
-			pbuf[i] = a.at(i, j);
+			pbuf[i*col_num+j] = a.at(i, j);
 		}
 	}
 	return Cmatrix_Type(row_num, col_num, pbuf, false);
