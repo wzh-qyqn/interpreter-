@@ -561,11 +561,7 @@ inter::Interpreter::Base_Item::~Base_Item() {
 		base_list->erase(base_Iter);
 }
 
-/**
-* @brief 对一个链表节点优先级从bracket_prority到1依次化简
-* @param uselist:要化简的链表
-* @return 无
-*/
+
 inline const char * inter::Interpreter::base_to_str(Base_Type b_type) {
 	switch (b_type) {
 	case BASE_NUM:
@@ -634,6 +630,12 @@ inline const char * inter::Interpreter::data_to_str(Data_Type d_type) {
 		return "未知类型";
 	}
 }
+
+/**
+* @brief 对一个链表节点优先级从bracket_prority到1依次化简
+* @param uselist:要化简的链表
+* @return 无
+*/
 void inter::Interpreter::simply_express(_My_List & uselist) {
 	for (int i = bracket_prority; i > 0; i--) {
 		Base_Item* pbuf;
@@ -868,18 +870,18 @@ bool inter::Interpreter::slove(const Str_Type & str) {
 		analyze_string(str, buf_list);
 		is_ok = true;
 	}
-	catch (std::logic_error&err) {
+	catch (const std::logic_error&err) {
 		*os_err << err.what() << std::endl;
 		clear_list(buf_list);
 		final_result = Base_Data(std::numeric_limits<Num_Type>::quiet_NaN());
 		is_ok = true;
 	}
-	catch (inter_error& err) {
+	catch (const inter_error& err) {
 		*os_err << err.what() << std::endl;
 		clear_list(buf_list);
 		is_ok = false;
 	}
-	catch (std::exception& err) {
+	catch (const std::exception& err) {
 		*os_err << err.what() << std::endl;
 		is_ok = false;
 	}

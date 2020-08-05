@@ -1094,7 +1094,7 @@ Use_Data rdim(const Use_Data& a) {
 														const Interpreter::_Data_Array *b1;\
 														Interpreter::_Data_Array pvec;\
 														b.get_data(b1);\
-														for (int i = 0; i < b1->size(); i++) {\
+														for (size_t i = 0; i < b1->size(); i++) {\
 															pvec.push_back(u##name##(a, (*b1)[i]));\
 														}\
 														return Use_Data(pvec);\
@@ -1136,7 +1136,7 @@ Use_Data rdim(const Use_Data& a) {
 														const Interpreter::_Data_Array *b1;\
 														Interpreter::_Data_Array pvec;\
 														b.get_data(b1);\
-														for (int i = 0; i < b1->size(); i++) {\
+														for (size_t i = 0; i < b1->size(); i++) {\
 															pvec.push_back(u##name##(a, (*b1)[i]));\
 														}\
 														return Use_Data(pvec);\
@@ -1178,7 +1178,7 @@ Use_Data rdim(const Use_Data& a) {
 														const Interpreter::_Data_Array *b1;\
 														Interpreter::_Data_Array pvec;\
 														b.get_data(b1);\
-														for (int i = 0; i < b1->size(); i++) {\
+														for (size_t i = 0; i < b1->size(); i++) {\
 															pvec.push_back(u##name##(a, (*b1)[i]));\
 														}\
 														return Use_Data(pvec);\
@@ -1220,7 +1220,7 @@ Use_Data rdim(const Use_Data& a) {
 														const Interpreter::_Data_Array *b1;\
 														Interpreter::_Data_Array pvec;\
 														b.get_data(b1);\
-														for (int i = 0; i < b1->size(); i++) {\
+														for (size_t i = 0; i < b1->size(); i++) {\
 															pvec.push_back(u##name##(a, (*b1)[i]));\
 														}\
 														return Use_Data(pvec);\
@@ -1262,7 +1262,7 @@ Use_Data rdim(const Use_Data& a) {
 														const Interpreter::_Data_Array *b1;\
 														Interpreter::_Data_Array pvec;\
 														b.get_data(b1);\
-														for (int i = 0; i < b1->size(); i++) {\
+														for (size_t i = 0; i < b1->size(); i++) {\
 															pvec.push_back(u##name##(a, (*b1)[i]));\
 														}\
 														return Use_Data(pvec);\
@@ -1280,13 +1280,13 @@ Use_Data rdim(const Use_Data& a) {
 														b.get_data(b1);\
 														if (a1->size() != b1->size())\
 															throw show_err("数组运算维数不匹配");\
-														for (int i = 0; i < a1->size(); i++) {\
+														for (size_t i = 0; i < a1->size(); i++) {\
 															pvec.push_back(u##name##((*a1)[i], (*b1)[i]));\
 														}\
 														return Use_Data(pvec);\
 													}\
 													else {\
-														for (int i = 0; i < a1->size(); i++) {\
+														for (size_t i = 0; i < a1->size(); i++) {\
 															pvec.push_back(u##name##((*a1)[i], b));\
 														}\
 														return Use_Data(pvec);\

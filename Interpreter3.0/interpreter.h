@@ -143,9 +143,9 @@ private:
             存储空间的最大存储量
             此函数的作用为判读一个字符串或字符在存储区的位置，主要是作为数学函数和
             运算符判断的函数
-    * @param store:存储区
+    * @param puse:存储区
              name :指定的名字
-    * @return int	偏移量，未寻找到返回存储空间的最大存储量
+    * @return size_t 偏移量，未寻找到返回存储空间的最大存储量
     */
     template<typename Tx, typename Ty>
     static inline size_t is_in_store(const Tx& puse, const Ty& name) {
@@ -158,25 +158,25 @@ private:
     }
 
 	struct StaticVar_Func {
-		const SingleVar_Func_Pair *store;
+		const SingleVar_Func_Pair * const store;
 		const size_t size;
 		StaticVar_Func(const SingleVar_Func_Pair * pstore, size_t psize) :
 			store(pstore), size(psize) {};
 	};
 	struct Binary_Func {
-		const Binary_Func_Pair *store;
+		const Binary_Func_Pair * const store;
 		const size_t size;
 		Binary_Func(const Binary_Func_Pair * pstore, size_t psize) :
 			store(pstore), size(psize) {};
 	};
 	struct Unary_Func {
-		const Unary_Func_Pair *store;
+		const Unary_Func_Pair * const store;
 		const size_t size;
 		Unary_Func(const Unary_Func_Pair * pstore, size_t psize) :
 			store(pstore), size(psize) {};
 	};
 	struct Const_Num {
-		const Const_Num_Pair *store;
+		const Const_Num_Pair * const store;
 		const size_t size;
 		Const_Num(const Const_Num_Pair * pstore, size_t psize) :
 			store(pstore), size(psize) {};

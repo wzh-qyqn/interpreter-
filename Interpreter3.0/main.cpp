@@ -101,7 +101,6 @@ int main(int argc, char* argv[])
 {
 	inter::Interpreter test;
     use_string str;
-    
     SetConsoleTitle("计算器(with C++)");
     std::system("color F0");
     while (true)
@@ -186,6 +185,9 @@ int main(int argc, char* argv[])
             cout << "ans=\n" << test << endl;
             cout << "所耗时间: " << (end - start) << "ms" << endl;
         }
+		else if (is_cmd(str, "quit")) {
+			break;
+		}
         else if (is_cmd(str, "read")) {
 			ifstream fin;
             time_t start;

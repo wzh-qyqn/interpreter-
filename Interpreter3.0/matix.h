@@ -56,9 +56,6 @@ public:
 	~Matrix();
 };
 
-
-
-
 //定义法迭代求行列式的值
 template<typename T>
 inline void Matrix<T>::sum_mul(T * paddr, size_t * psave, \
