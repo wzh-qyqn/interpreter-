@@ -30,13 +30,13 @@
     <ClInclude Include="resource3.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="matix.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="interpreter_type.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="interpreter_err.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter_matrix.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

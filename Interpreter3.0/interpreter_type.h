@@ -4,8 +4,8 @@
 #include <string>
 #include <iostream>
 #include <complex>
-#include "matix.h"
-namespace inter {
+#include "interpreter_matrix.h"
+namespace interpret {
 	typedef long double Num_Type;
 	typedef char Char_Type;
 	typedef std::basic_string<Char_Type, \

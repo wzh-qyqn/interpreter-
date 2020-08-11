@@ -8,9 +8,9 @@
 #include "interpreter.h"
 
 
-using namespace inter;
+using namespace interpret;
 namespace {
-typedef inter::Interpreter::Base_Data Use_Data;
+typedef interpret::Interpreter::Base_Data Use_Data;
 static inline Cmatrix_Type Num_To_Complex(const Matrix_Type& a) {
 	Complex_Type* pbuf;
 	size_t row_num = a.row();
@@ -789,7 +789,7 @@ static inline Matrix_Type rmatrix(const Interpreter::_Data_Array* a) {
 			pbuf[i] = rnum(a->at(i));
 		}
 	}
-	catch (const inter::inter_error& err) {
+	catch (const interpret::inter_error& err) {
 		delete[] pbuf;
 		throw err;
 	}
@@ -861,7 +861,7 @@ static inline Cmatrix_Type rcmatrix(const Interpreter::_Data_Array* a) {
 			pbuf[i] = rcomp(a->at(i));
 		}
 	}
-	catch (const inter::inter_error& err) {
+	catch (const interpret::inter_error& err) {
 		delete[] pbuf;
 		throw err;
 	}

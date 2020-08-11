@@ -2,7 +2,7 @@
 
 
 //分配一块由pData初始化的内存
-inline void inter::Interpreter::Base_Data::_Malloc(const Base_Data & pData) {
+inline void interpret::Interpreter::Base_Data::_Malloc(const Base_Data & pData) {
 	switch (pData.d_type) {
 	case DATA_DOUBLE:
 		data = new Num_Type(*reinterpret_cast<Num_Type*>(pData.data));
@@ -34,7 +34,7 @@ inline void inter::Interpreter::Base_Data::_Malloc(const Base_Data & pData) {
 
 
 //释放所分配的数据
-inline void inter::Interpreter::Base_Data::_Free(void) {
+inline void interpret::Interpreter::Base_Data::_Free(void) {
 	switch (d_type) {
 	case DATA_DOUBLE:
 		delete reinterpret_cast<Num_Type*>(data);
@@ -59,55 +59,55 @@ inline void inter::Interpreter::Base_Data::_Free(void) {
 	}
 }
 
-inter::Interpreter::Base_Data::Base_Data() {
+interpret::Interpreter::Base_Data::Base_Data() {
 	data = nullptr;
 	is_own = false;
 	is_init = false;
 }
 
-inter::Interpreter::Base_Data::Base_Data(const Num_Type & res) {
+interpret::Interpreter::Base_Data::Base_Data(const Num_Type & res) {
 	data = new Num_Type(res);
 	is_own = true;
 	is_init = true;
 	d_type = DATA_DOUBLE;
 }
 
-inter::Interpreter::Base_Data::Base_Data(const Complex_Type & res) {
+interpret::Interpreter::Base_Data::Base_Data(const Complex_Type & res) {
 	data = new Complex_Type(res);
 	is_own = true;
 	is_init = true;
 	d_type = DATA_COMPLEX;
 }
 
-inter::Interpreter::Base_Data::Base_Data(const bool & res) {
+interpret::Interpreter::Base_Data::Base_Data(const bool & res) {
 	data = new bool(res);
 	is_own = true;
 	is_init = true;
 	d_type = DATA_BOOL;
 }
 
-inter::Interpreter::Base_Data::Base_Data(const _Data_Array & res) {
+interpret::Interpreter::Base_Data::Base_Data(const _Data_Array & res) {
 	data = new _Data_Array(res);
 	is_own = true;
 	is_init = true;
 	d_type = DATA_ARRAY;
 }
 
-inter::Interpreter::Base_Data::Base_Data(const Matrix_Type &res){
+interpret::Interpreter::Base_Data::Base_Data(const Matrix_Type &res){
 	data = new Matrix_Type(res);
 	is_own = true;
 	is_init = true;
 	d_type = DATA_MATRIX;
 }
 
-inter::Interpreter::Base_Data::Base_Data(const Cmatrix_Type &res){
+interpret::Interpreter::Base_Data::Base_Data(const Cmatrix_Type &res){
 	data = new Cmatrix_Type(res);
 	is_own = true;
 	is_init = true;
 	d_type = DATA_CMATRIX;
 }
 
-inter::Interpreter::Base_Data::Base_Data(Matrix_Type &&res){
+interpret::Interpreter::Base_Data::Base_Data(Matrix_Type &&res){
 	data = new Matrix_Type;
 	(*reinterpret_cast<Matrix_Type*>(data)) = std::move(res);
 	is_own = true;
@@ -115,7 +115,7 @@ inter::Interpreter::Base_Data::Base_Data(Matrix_Type &&res){
 	d_type = DATA_MATRIX;
 }
 
-inter::Interpreter::Base_Data::Base_Data(Cmatrix_Type && res){
+interpret::Interpreter::Base_Data::Base_Data(Cmatrix_Type && res){
 	data = new Cmatrix_Type;
 	(*reinterpret_cast<Cmatrix_Type*>(data)) = std::move(res);
 	is_own = true;
@@ -123,7 +123,7 @@ inter::Interpreter::Base_Data::Base_Data(Cmatrix_Type && res){
 	d_type = DATA_CMATRIX;
 }
 
-inter::Interpreter::Base_Data::Base_Data(_Data_Array && res){
+interpret::Interpreter::Base_Data::Base_Data(_Data_Array && res){
 	data = new _Data_Array;
 	(*reinterpret_cast<_Data_Array*>(data)) = std::move(res);
 	is_own = true;
@@ -138,7 +138,7 @@ inter::Interpreter::Base_Data::Base_Data(_Data_Array && res){
 * @param 无
 * @return 返回一个属性为影子的Base_Data
 */
-inter::Interpreter::Base_Data inter::Interpreter::Base_Data::get_shadow() const {
+interpret::Interpreter::Base_Data interpret::Interpreter::Base_Data::get_shadow() const {
 	Base_Data pData;
 	pData.data = data;
 	pData.d_type = d_type;
@@ -155,7 +155,7 @@ inter::Interpreter::Base_Data inter::Interpreter::Base_Data::get_shadow() const 
 * @param 无
 * @return 返回一个属性为本体的Base_Data
 */
-inter::Interpreter::Base_Data inter::Interpreter::Base_Data::get_real() const {
+interpret::Interpreter::Base_Data interpret::Interpreter::Base_Data::get_real() const {
 	Base_Data pData;
 	if (is_init) {
 		pData.d_type = d_type;
@@ -163,10 +163,12 @@ inter::Interpreter::Base_Data inter::Interpreter::Base_Data::get_real() const {
 		pData.is_own = true;
 		pData._Malloc(*this);
 	}
+	else
+		show_err("获取数据本体错误：引用了未初始化的数据");
 	return pData;
 }
 
-inter::Interpreter::Base_Data::Base_Data(const Base_Data & pData) {
+interpret::Interpreter::Base_Data::Base_Data(const Base_Data & pData) {
 	d_type = pData.d_type;
 	is_own = pData.is_own;
 	is_init = pData.is_init;
@@ -178,7 +180,7 @@ inter::Interpreter::Base_Data::Base_Data(const Base_Data & pData) {
 	}
 }
 
-bool inter::Interpreter::Base_Data::operator<(const Base_Data &pdata)const{
+bool interpret::Interpreter::Base_Data::operator<(const Base_Data &pdata)const{
 	switch (get_type()) {
 	case Interpreter::DATA_DOUBLE: {
 		Num_Type ldata;
@@ -221,7 +223,7 @@ bool inter::Interpreter::Base_Data::operator<(const Base_Data &pdata)const{
 	}
 }
 
-inter::Interpreter::Base_Data::Base_Data(Base_Data && pData) {
+interpret::Interpreter::Base_Data::Base_Data(Base_Data && pData) {
 	d_type = pData.d_type;
 	is_own = pData.is_own;
 	is_init = pData.is_init;
@@ -229,7 +231,7 @@ inter::Interpreter::Base_Data::Base_Data(Base_Data && pData) {
 	pData.is_own = false;
 }
 
-inter::Interpreter::Base_Data& inter::Interpreter::Base_Data::operator=(const Base_Data& pData) {
+interpret::Interpreter::Base_Data& interpret::Interpreter::Base_Data::operator=(const Base_Data& pData) {
 	if (&pData == this)
 		return *this;
 	if (is_init&&is_own)
@@ -246,7 +248,7 @@ inter::Interpreter::Base_Data& inter::Interpreter::Base_Data::operator=(const Ba
 	return *this;
 }
 
-inter::Interpreter::Base_Data& inter::Interpreter::Base_Data::operator=(Base_Data&& pData) {
+interpret::Interpreter::Base_Data& interpret::Interpreter::Base_Data::operator=(Base_Data&& pData) {
 	if (&pData == this)
 		return *this;
 	if (is_init&&is_own)
@@ -266,7 +268,7 @@ inter::Interpreter::Base_Data& inter::Interpreter::Base_Data::operator=(Base_Dat
 *		-<em>false</em> 不是影子
 *		-<em>true</em>	是影子
 */
-bool inter::Interpreter::Base_Data::is_shadow() const {
+bool interpret::Interpreter::Base_Data::is_shadow() const {
 	if (is_init)
 		return !is_own;
 	else
@@ -281,7 +283,7 @@ bool inter::Interpreter::Base_Data::is_shadow() const {
 *		DATA_DOUBLE		实数
 *		DATA_COMPLEX	复数
 */
-inter::Interpreter::Data_Type inter::Interpreter::Base_Data::get_type() const {
+interpret::Interpreter::Data_Type interpret::Interpreter::Base_Data::get_type() const {
 	if (is_init)
 		return d_type;
 	else
@@ -289,14 +291,14 @@ inter::Interpreter::Data_Type inter::Interpreter::Base_Data::get_type() const {
 }
 
 //获取内部存储的数据源地址
-void inter::Interpreter::Base_Data::get_data(const void *& p) const {	//此处获取源地址是为了让我们可以通过
+void interpret::Interpreter::Base_Data::get_data(const void *& p) const {	//此处获取源地址是为了让我们可以通过
 	if (is_init)				//影子可以寻找到本体，影子与本体的唯一
 		p = data;				//联系只有这个地址。
 	else
 		throw show_err("试图查询未初始化的存储地址");
 }
 
-void inter::Interpreter::Base_Data::get_data(Num_Type & res) const {
+void interpret::Interpreter::Base_Data::get_data(Num_Type & res) const {
 	if (is_init) {
 		if (DATA_DOUBLE == d_type) {
 			res = *reinterpret_cast<Num_Type*>(data);
@@ -308,7 +310,7 @@ void inter::Interpreter::Base_Data::get_data(Num_Type & res) const {
 		throw show_err("试图查询未初始化的数值类型");
 }
 
-void inter::Interpreter::Base_Data::get_data(Complex_Type & res) const {
+void interpret::Interpreter::Base_Data::get_data(Complex_Type & res) const {
 	if (is_init) {
 		if (DATA_COMPLEX == d_type) {
 			res = *reinterpret_cast<Complex_Type*>(data);
@@ -320,7 +322,7 @@ void inter::Interpreter::Base_Data::get_data(Complex_Type & res) const {
 		throw show_err("试图查询未初始化的数值类型");
 }
 
-void inter::Interpreter::Base_Data::get_data(bool & res) const {
+void interpret::Interpreter::Base_Data::get_data(bool & res) const {
 	if (is_init) {
 		if (DATA_BOOL == d_type) {
 			res = *reinterpret_cast<bool*>(data);
@@ -332,7 +334,7 @@ void inter::Interpreter::Base_Data::get_data(bool & res) const {
 		throw show_err("试图查询未初始化的数值类型");
 }
 
-void inter::Interpreter::Base_Data::get_data(const _Data_Array *& res) const {
+void interpret::Interpreter::Base_Data::get_data(const _Data_Array *& res) const {
 	if (is_init) {
 		if (DATA_ARRAY == d_type) {
 			res = reinterpret_cast<const _Data_Array *>(data);
@@ -344,7 +346,7 @@ void inter::Interpreter::Base_Data::get_data(const _Data_Array *& res) const {
 		throw show_err("试图查询未初始化的数值类型");
 }
 
-void inter::Interpreter::Base_Data::get_data(const Matrix_Type *& res) const{
+void interpret::Interpreter::Base_Data::get_data(const Matrix_Type *& res) const{
 	if (is_init) {
 		if (DATA_MATRIX == d_type) {
 			res = reinterpret_cast<const Matrix_Type*>(data);
@@ -356,7 +358,7 @@ void inter::Interpreter::Base_Data::get_data(const Matrix_Type *& res) const{
 		throw show_err("试图查询未初始化的数值类型");
 }
 
-void inter::Interpreter::Base_Data::get_data(const Cmatrix_Type *& res) const{
+void interpret::Interpreter::Base_Data::get_data(const Cmatrix_Type *& res) const{
 	if (is_init) {
 		if (DATA_CMATRIX == d_type) {
 			res = reinterpret_cast<const Cmatrix_Type*>(data);
@@ -370,21 +372,21 @@ void inter::Interpreter::Base_Data::get_data(const Cmatrix_Type *& res) const{
 
 
 
-inter::Interpreter::Base_Data::~Base_Data() {
+interpret::Interpreter::Base_Data::~Base_Data() {
 	if (is_init&&is_own)
 		_Free();
 }
 
-inter::Ostr_Type& inter::operator<<(inter::Ostr_Type&os, const inter::Interpreter::Base_Data& pData) {
+interpret::Ostr_Type& interpret::operator<<(interpret::Ostr_Type&os, const interpret::Interpreter::Base_Data& pData) {
 	switch (pData.get_type()) {
-	case inter::Interpreter::DATA_DOUBLE: {
-		inter::Num_Type a;
+	case interpret::Interpreter::DATA_DOUBLE: {
+		interpret::Num_Type a;
 		pData.get_data(a);
 		os << a;
 		break;
 	}
-	case inter::Interpreter::DATA_COMPLEX: {
-		inter::Complex_Type a;
+	case interpret::Interpreter::DATA_COMPLEX: {
+		interpret::Complex_Type a;
 		pData.get_data(a);
 		os << a.real();
 		if (a.imag() >= 0)
@@ -392,14 +394,14 @@ inter::Ostr_Type& inter::operator<<(inter::Ostr_Type&os, const inter::Interprete
 		os << a.imag() << "*i";
 		break;
 	}
-	case inter::Interpreter::DATA_BOOL: {
+	case interpret::Interpreter::DATA_BOOL: {
 		bool a;
 		pData.get_data(a);
 		a ? os << "true" : os << "false";
 		break;
 	}
-	case inter::Interpreter::DATA_ARRAY: {
-		const inter::Interpreter::_Data_Array* a;
+	case interpret::Interpreter::DATA_ARRAY: {
+		const interpret::Interpreter::_Data_Array* a;
 		pData.get_data(a);
 		os << '(';
 		for (auto const& iter : *a) {
@@ -408,8 +410,8 @@ inter::Ostr_Type& inter::operator<<(inter::Ostr_Type&os, const inter::Interprete
 		os << ')';
 		break;
 	}
-	case inter::Interpreter::DATA_MATRIX: {
-		const inter::Matrix_Type* a;
+	case interpret::Interpreter::DATA_MATRIX: {
+		const interpret::Matrix_Type* a;
 		pData.get_data(a);
 		for (size_t i = 0; i < a->row(); i++) {
 			for (size_t j = 0; j < a->col(); j++) {
@@ -419,8 +421,8 @@ inter::Ostr_Type& inter::operator<<(inter::Ostr_Type&os, const inter::Interprete
 		}
 		break;
 	}
-	case inter::Interpreter::DATA_CMATRIX: {
-		const inter::Cmatrix_Type* a;
+	case interpret::Interpreter::DATA_CMATRIX: {
+		const interpret::Cmatrix_Type* a;
 		pData.get_data(a);
 		for (size_t i = 0; i < a->row(); i++) {
 			for (size_t j = 0; j < a->col(); j++) {
@@ -435,13 +437,13 @@ inter::Ostr_Type& inter::operator<<(inter::Ostr_Type&os, const inter::Interprete
 		break;
 	}
 	default:
-		throw inter::show_err("数据类型不支持显示");
+		throw interpret::show_err("数据类型不支持显示");
 	}
 	return os;
 }
 
 //给出从属的根链表级
-inter::Interpreter::Base_Item::Base_Item(_My_List * baselist, Base_Type btype, Item_Type itype, int prio) {
+interpret::Interpreter::Base_Item::Base_Item(_My_List * baselist, Base_Type btype, Item_Type itype, int prio) {
 	b_type = btype;
 	i_type = itype;
 	priority = prio;
@@ -452,7 +454,7 @@ inter::Interpreter::Base_Item::Base_Item(_My_List * baselist, Base_Type btype, I
 }
 
 //无从属链表
-inter::Interpreter::Base_Item::Base_Item(Base_Type btype, Item_Type itype, int prio) {
+interpret::Interpreter::Base_Item::Base_Item(Base_Type btype, Item_Type itype, int prio) {
 	b_type = btype;
 	i_type = itype;
 	priority = prio;
@@ -460,24 +462,24 @@ inter::Interpreter::Base_Item::Base_Item(Base_Type btype, Item_Type itype, int p
 }
 
 //获取基础数据类型
-inter::Interpreter::Base_Type inter::Interpreter::Base_Item::get_base() {
+interpret::Interpreter::Base_Type interpret::Interpreter::Base_Item::get_base() {
 	return b_type;
 }
 
 //获取具体的节点类型
-inter::Interpreter::Item_Type inter::Interpreter::Base_Item::get_item() {
+interpret::Interpreter::Item_Type interpret::Interpreter::Base_Item::get_item() {
 	return i_type;
 }
 
 //获取节点自己的迭代器
-inter::Interpreter::_My_List_Iter inter::Interpreter::Base_Item::get_iter() {
+interpret::Interpreter::_My_List_Iter interpret::Interpreter::Base_Item::get_iter() {
 	if (have_master)
 		return base_Iter;
 	else
 		throw show_err("获取的迭代器无效");
 }
 
-inter::Interpreter::_My_List * inter::Interpreter::Base_Item::get_master() {
+interpret::Interpreter::_My_List * interpret::Interpreter::Base_Item::get_master() {
 	if (have_master)
 		return base_list;
 	else
@@ -486,33 +488,33 @@ inter::Interpreter::_My_List * inter::Interpreter::Base_Item::get_master() {
 
 
 //留待符合条件的节点重定义虚函数
-void inter::Interpreter::Base_Item::get_data(Base_Data & num_data) {
+void interpret::Interpreter::Base_Item::get_data(Base_Data & num_data) {
 	throw show_err("数值获取错误，错误节点属性：", item_to_str(i_type));
 }
 
-void inter::Interpreter::Base_Item::get_data(size_t & num) {
+void interpret::Interpreter::Base_Item::get_data(size_t & num) {
 	throw show_err("偏移量获取错误，错误节点属性：", item_to_str(i_type));
 }
 
-void inter::Interpreter::Base_Item::get_data(Str_Type & usestr) {
+void interpret::Interpreter::Base_Item::get_data(Str_Type & usestr) {
 	throw show_err("字符串获取错误，错误节点属性：", item_to_str(i_type));
 }
 
-void inter::Interpreter::Base_Item::get_data(_My_List *& uselist) {
+void interpret::Interpreter::Base_Item::get_data(_My_List *& uselist) {
 	throw show_err("链表指针获取错误，错误节点属性：", item_to_str(i_type));
 }
 
-void inter::Interpreter::Base_Item::get_data(_Data_Array *& usevector) {
+void interpret::Interpreter::Base_Item::get_data(_Data_Array *& usevector) {
 	throw show_err("向量指针获取错误，错误节点属性：", item_to_str(i_type));
 }
 
 
-int inter::Interpreter::Base_Item::get_prio() {
+int interpret::Interpreter::Base_Item::get_prio() {
 	return priority;
 }
 
 //更改节点的链表主人，会插入到新链表的尾部
-inter::Interpreter::_My_List_Iter inter::Interpreter::Base_Item::change_master(_My_List * uselist) {
+interpret::Interpreter::_My_List_Iter interpret::Interpreter::Base_Item::change_master(_My_List * uselist) {
 	if (have_master)
 		base_list->erase(base_Iter);
 	else
@@ -529,7 +531,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Base_Item::change_master(_
 *		 _My_List_Iter:更换的位置，插入pIter的后面
 * @return 新位置的迭代器
 */
-inter::Interpreter::_My_List_Iter inter::Interpreter::Base_Item::change_master(_My_List * uselist, _My_List_Iter pIter) {
+interpret::Interpreter::_My_List_Iter interpret::Interpreter::Base_Item::change_master(_My_List * uselist, _My_List_Iter pIter) {
 	if (have_master)
 		base_list->erase(base_Iter);
 	else
@@ -544,7 +546,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Base_Item::change_master(_
 * @param data_item:要将自己替换下来的节点指针
 * @return 替换完后原位置新节点的迭代器
 */
-inter::Interpreter::_My_List_Iter inter::Interpreter::Base_Item::instead(Base_Item * data_item) {//链表元素替换
+interpret::Interpreter::_My_List_Iter interpret::Interpreter::Base_Item::instead(Base_Item * data_item) {//链表元素替换
 	if (have_master == false)
 		throw show_err("无主节点不可替换");
 	if (data_item->have_master)
@@ -556,13 +558,13 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Base_Item::instead(Base_It
 	return data_item->base_Iter;
 }
 
-inter::Interpreter::Base_Item::~Base_Item() {
+interpret::Interpreter::Base_Item::~Base_Item() {
 	if (have_master)
 		base_list->erase(base_Iter);
 }
 
 
-inline const char * inter::Interpreter::base_to_str(Base_Type b_type) {
+inline const char * interpret::Interpreter::base_to_str(Base_Type b_type) {
 	switch (b_type) {
 	case BASE_NUM:
 		return "数据型";
@@ -580,7 +582,7 @@ inline const char * inter::Interpreter::base_to_str(Base_Type b_type) {
 		return "未知类型";
 	}
 }
-inline const char * inter::Interpreter::item_to_str(Item_Type i_type) {
+inline const char * interpret::Interpreter::item_to_str(Item_Type i_type) {
 	switch (i_type) {
 	case BINARY_OPERATOR:
 		return "二元操作符";
@@ -612,7 +614,7 @@ inline const char * inter::Interpreter::item_to_str(Item_Type i_type) {
 		return "未知节点";
 	}
 }
-inline const char * inter::Interpreter::data_to_str(Data_Type d_type) {
+inline const char * interpret::Interpreter::data_to_str(Data_Type d_type) {
 	switch (d_type) {
 	case DATA_ARRAY:
 		return "Base_Data数组";
@@ -636,7 +638,7 @@ inline const char * inter::Interpreter::data_to_str(Data_Type d_type) {
 * @param uselist:要化简的链表
 * @return 无
 */
-void inter::Interpreter::simply_express(_My_List & uselist) {
+void interpret::Interpreter::simply_express(_My_List & uselist) {
 	for (int i = bracket_prority; i > 0; i--) {
 		Base_Item* pbuf;
 		for (_My_List_Iter &&use_iter = uselist.begin(); use_iter != uselist.end();) {
@@ -658,18 +660,18 @@ void inter::Interpreter::simply_express(_My_List & uselist) {
 * @param uselist:要清空的链表
 * @return 无
 */
-void inter::Interpreter::clear_list(_My_List & uselist) {
+void interpret::Interpreter::clear_list(_My_List & uselist) {
 	while (!uselist.empty()) {
 		delete uselist.front();
 	}
 }
 
 //联系上下文判断是否为数字或名字
-inline bool inter::Interpreter::is_num(int c, size_t name_offset) {
+inline bool interpret::Interpreter::is_num(int c, size_t name_offset) {
 	return name_offset ? false : isdigit(c) || c == '.';
 }
 
-inline bool inter::Interpreter::is_name(int c, size_t num_offset) {
+inline bool interpret::Interpreter::is_name(int c, size_t num_offset) {
 	return isalpha(c) || c == '_' || !isascii(c) || (num_offset ? false : isdigit(c));
 }
 
@@ -679,7 +681,7 @@ inline bool inter::Interpreter::is_name(int c, size_t num_offset) {
 buf_list:用来缓存的链表，用于存储分析后的链表
 * @return 无
 */
-size_t inter::Interpreter::symbol_string(_My_List & buf_list, const Char_Type * str) {
+size_t interpret::Interpreter::symbol_string(_My_List & buf_list, const Char_Type * str) {
 	size_t num_offset = 0;
 	size_t name_offset = 0;
 	size_t i;
@@ -831,7 +833,7 @@ buf_list:用来缓存的链表，用于发生异常时
 在函数外释放数据
 * @return 无
 */
-void inter::Interpreter::analyze_string(const Str_Type & str, _My_List & buf_list) {
+void interpret::Interpreter::analyze_string(const Str_Type & str, _My_List & buf_list) {
 	const char* p_str = str.c_str();
 	size_t offset = 0;
 	do {
@@ -852,19 +854,19 @@ void inter::Interpreter::analyze_string(const Str_Type & str, _My_List & buf_lis
 	} while (offset<str.size());
 }
 
-inter::Interpreter::Interpreter() {
+interpret::Interpreter::Interpreter() {
 	is_ok = false;
 	final_result = Base_Data(Num_Type(0));
 }
 
-inter::Interpreter::Interpreter(const Interpreter & pInter) {//其实没什么用，默认的就ok
+interpret::Interpreter::Interpreter(const Interpreter & pInter) {//其实没什么用，默认的就ok
 	final_result = pInter.final_result.get_real();
 	is_ok = pInter.is_ok;
 	main_var = pInter.main_var;
 }
 
 
-bool inter::Interpreter::slove(const Str_Type & str) {
+bool interpret::Interpreter::slove(const Str_Type & str) {
 	_My_List buf_list;
 	try {
 		analyze_string(str, buf_list);
@@ -893,12 +895,12 @@ bool inter::Interpreter::slove(const Str_Type & str) {
 * @param 无
 * @return 无
 */
-void inter::Interpreter::clear() {
+void interpret::Interpreter::clear() {
 	main_var.clear();
 }
 
-std::vector<inter::Str_Type> inter::Interpreter::get_const_num() {
-	std::vector<inter::Str_Type> buf;
+std::vector<interpret::Str_Type> interpret::Interpreter::get_const_num() {
+	std::vector<interpret::Str_Type> buf;
 	buf.push_back(result_string);
 	for (size_t i = 0; i < const_BaseData.size; i++) {
 		buf.push_back(const_BaseData.store[i].name);
@@ -912,8 +914,8 @@ std::vector<inter::Str_Type> inter::Interpreter::get_const_num() {
 * @return Str_Type:由\n间隔的函数名组成的字符串
 */
 
-std::vector<inter::Str_Type> inter::Interpreter::get_const_func() {
-	std::vector<inter::Str_Type> buf;
+std::vector<interpret::Str_Type> interpret::Interpreter::get_const_func() {
+	std::vector<interpret::Str_Type> buf;
 	for (size_t i = 0; i < singlevar_func.size; i++) {
 		buf.push_back(singlevar_func.store[i].name);
 	}
@@ -926,8 +928,8 @@ std::vector<inter::Str_Type> inter::Interpreter::get_const_func() {
 * @return Str_Type:由\n间隔的运算符组成的字符串
 */
 
-std::vector<inter::Char_Type> inter::Interpreter::get_const_opre() {
-	std::vector<inter::Char_Type> buf;
+std::vector<interpret::Char_Type> interpret::Interpreter::get_const_opre() {
+	std::vector<interpret::Char_Type> buf;
 	for (size_t i = 0; i < binary_func.size; i++) {
 		buf.push_back(binary_func.store[i].name);
 	}
@@ -938,7 +940,7 @@ std::vector<inter::Char_Type> inter::Interpreter::get_const_opre() {
 }
 
 
-inter::Interpreter::_My_List_Iter inter::Interpreter::Binary_Operator::operation(void) {
+interpret::Interpreter::_My_List_Iter interpret::Interpreter::Binary_Operator::operation(void) {
 	Base_Data a, b;
 	_My_List_Iter use_iter;
 	bool signflag=false;
@@ -973,7 +975,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Binary_Operator::operation
 	return use_iter;							//返回新的迭代器
 }
 
-inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operation(void) {
+interpret::Interpreter::_My_List_Iter interpret::Interpreter::Bracket_Operator::operation(void) {
 	_My_List_Iter use_iter;
 	if (use_list.empty()) {
 		return ++get_iter();
@@ -1052,7 +1054,6 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operatio
 						pself.get_data(poffset);
 						if (size_t(poffset) >= pmat->row()) {
 							throw show_err("矩阵行向量访问错误，可访问范围：0~", pmat->row() - 1, ",试图访问的坐标：", size_t(poffset));
-							
 						}
 						if (pbuf.is_shadow())
 							pItem = new Node_Elem_Num(pmat, Node_Elem_Num::CMATRIX_1, size_t(poffset));
@@ -1093,7 +1094,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Bracket_Operator::operatio
 }
 
 
-inter::Interpreter::_My_List_Iter inter::Interpreter::Comma_Operator::operation(void) {
+interpret::Interpreter::_My_List_Iter interpret::Interpreter::Comma_Operator::operation(void) {
 	_Data_Array pPackage;
 	_My_List_Iter comma_iter = get_iter();
 	auto next = [](_My_List_Iter pIter) {return ++pIter; };
@@ -1128,7 +1129,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Comma_Operator::operation(
 	return instead(new Noraml_Num(Base_Data(pPackage)));
 }
 
-inter::Interpreter::_My_List_Iter inter::Interpreter::Static_Function::operation(void) {
+interpret::Interpreter::_My_List_Iter interpret::Interpreter::Static_Function::operation(void) {
 	Base_Data a;
 	_My_List_Iter use_iter;
 	if (this == get_master()->back()) {
@@ -1142,7 +1143,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Static_Function::operation
 	return use_iter;
 }
 
-inter::Interpreter::_My_List_Iter inter::Interpreter::Unary_Operator::operation(void) {
+interpret::Interpreter::_My_List_Iter interpret::Interpreter::Unary_Operator::operation(void) {
 	Base_Data a;
 	Complex_Type coma;
 	_My_List_Iter use_iter;
@@ -1164,7 +1165,7 @@ pdata:新元素的值
 * @return 新元素生成的一个影子
 */
 
-inter::Interpreter::Base_Data inter::Interpreter::Variable_Map::push_new(const Str_Type & pstr, const Base_Data & pdata) {
+interpret::Interpreter::Base_Data interpret::Interpreter::Variable_Map::push_new(const Str_Type & pstr, const Base_Data & pdata) {
 	auto&& ret = var_map.insert(std::make_pair(pstr, pdata.get_real())).first;//必须要存储真实值
 	const void* use_data;
 	ret->second.get_data(use_data);
@@ -1179,7 +1180,7 @@ pdata:要更改的值
 * @return 元素更改后生成的影子
 */
 
-inter::Interpreter::Base_Data inter::Interpreter::Variable_Map::data_change(const void * psrc, const Base_Data & pdata) {
+interpret::Interpreter::Base_Data interpret::Interpreter::Variable_Map::data_change(const void * psrc, const Base_Data & pdata) {
 	auto&& ret = var_p_map.find(psrc);
 	if (ret != var_p_map.end()) {
 		const void* pnew;
@@ -1202,7 +1203,7 @@ pdata:若成功寻找到会将寻找的对应值的影子传递过来
 false:变量表中未寻找到了键值
 */
 
-bool inter::Interpreter::Variable_Map::find_in(const Str_Type & pstr, Base_Data & pdata) {
+bool interpret::Interpreter::Variable_Map::find_in(const Str_Type & pstr, Base_Data & pdata) {
 	auto&& ret = var_map.find(pstr);
 	if (ret != var_map.end()) {
 		pdata = ret->second.get_shadow();
@@ -1212,7 +1213,7 @@ bool inter::Interpreter::Variable_Map::find_in(const Str_Type & pstr, Base_Data 
 		return false;
 }
 
-bool inter::Interpreter::Variable_Map::find_in(const void * paddr, _My_Map_Iter & pIter){
+bool interpret::Interpreter::Variable_Map::find_in(const void * paddr, _My_Map_Iter & pIter){
 	auto &&ret = var_p_map.find(paddr);
 	if (ret != var_p_map.end()) {
 		pIter = ret->second;
@@ -1230,12 +1231,12 @@ bool inter::Interpreter::Variable_Map::find_in(const void * paddr, _My_Map_Iter 
 * @return 无
 */
 
-inline void inter::Interpreter::Variable_Map::clear(void) {
+inline void interpret::Interpreter::Variable_Map::clear(void) {
 	var_map.clear();
 	var_p_map.clear();
 }
 
-inter::Interpreter::_My_List_Iter inter::Interpreter::Assignment_Operator::operation(void) {
+interpret::Interpreter::_My_List_Iter interpret::Interpreter::Assignment_Operator::operation(void) {
 	if (this == get_master()->front() || this == get_master()->back())//保证两边有元素
 		throw show_err("赋值运算符使用错误！");
 	Base_Item* node_priv = *(--get_iter());
@@ -1261,7 +1262,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::Assignment_Operator::opera
 	return ++get_iter();
 }
 
-inter::Interpreter& inter::Interpreter::operator=(const inter::Interpreter& pInter) {//其实没什么用，默认的就ok
+interpret::Interpreter& interpret::Interpreter::operator=(const interpret::Interpreter& pInter) {//其实没什么用，默认的就ok
 	if (&pInter == this) {
 		return *this;
 	}
@@ -1271,7 +1272,7 @@ inter::Interpreter& inter::Interpreter::operator=(const inter::Interpreter& pInt
 	return *this;
 }
 
-inter::Interpreter::_My_List_Iter inter::Interpreter::SQ_Bracket_Operator::operation(void){
+interpret::Interpreter::_My_List_Iter interpret::Interpreter::SQ_Bracket_Operator::operation(void){
 	size_t row_num = 0;
 	size_t col_num = 0;
 	size_t col_finalnum = 0;
@@ -1370,7 +1371,7 @@ inter::Interpreter::_My_List_Iter inter::Interpreter::SQ_Bracket_Operator::opera
 	return use_iter;
 }
 
-void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Map * pmap) {
+void interpret::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Map * pmap) {
 	switch (type) {
 	case ARRAY_1:
 		reinterpret_cast<_Data_Array*>(paddr)->at(xpos) = num_data.get_real();
@@ -1473,12 +1474,12 @@ void inter::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Ma
 		break;
 	}
 	default:
-		throw show_err("未知错误");
+		throw show_err("未知错误：", __LINE__);
 		break;
 	}
 }
 
-void inter::Interpreter::Node_Elem_Num::get_data(Base_Data & num_data) {
+void interpret::Interpreter::Node_Elem_Num::get_data(Base_Data & num_data) {
 	switch (type) {
 	case ARRAY_1: {
 		num_data = reinterpret_cast<_Data_Array*>(paddr)->at(xpos);
@@ -1513,6 +1514,6 @@ void inter::Interpreter::Node_Elem_Num::get_data(Base_Data & num_data) {
 		break;
 	}
 	default:
-		throw show_err("未知错误");
+		throw show_err("未知错误：",__LINE__);
 	}
 }

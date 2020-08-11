@@ -25,7 +25,7 @@
 /**
 * @brief 本程序的主要名字空间
 */
-namespace inter {
+namespace interpret {
 
 //-------------------------------------------------------------------
 // 主体类的实现
@@ -51,6 +51,7 @@ namespace inter {
 */
 class Interpreter {
 public:
+
 	class Base_Data;
 	typedef std::vector<Base_Data> _Data_Array;
 
@@ -161,25 +162,25 @@ private:
 		const SingleVar_Func_Pair * const store;
 		const size_t size;
 		StaticVar_Func(const SingleVar_Func_Pair * pstore, size_t psize) :
-			store(pstore), size(psize) {};
+			store(pstore), size(psize) {}
 	};
 	struct Binary_Func {
 		const Binary_Func_Pair * const store;
 		const size_t size;
 		Binary_Func(const Binary_Func_Pair * pstore, size_t psize) :
-			store(pstore), size(psize) {};
+			store(pstore), size(psize) {}
 	};
 	struct Unary_Func {
 		const Unary_Func_Pair * const store;
 		const size_t size;
 		Unary_Func(const Unary_Func_Pair * pstore, size_t psize) :
-			store(pstore), size(psize) {};
+			store(pstore), size(psize) {}
 	};
 	struct Const_Num {
 		const Const_Num_Pair * const store;
 		const size_t size;
 		Const_Num(const Const_Num_Pair * pstore, size_t psize) :
-			store(pstore), size(psize) {};
+			store(pstore), size(psize) {}
 	};
 
 
@@ -282,9 +283,9 @@ private:
 		Node_Num(Item_Type itype,Base_Data&&usenum) :
 			Base_Item(BASE_NUM, itype, 0), store_num(std::move(usenum)) {}
 		Node_Num(_My_List* baselist, Item_Type itype, const Base_Data& usenum) :
-			Base_Item(baselist, BASE_NUM, itype, 0), store_num(usenum) {};
+			Base_Item(baselist, BASE_NUM, itype, 0), store_num(usenum) {}
 		Node_Num(Item_Type itype,const Base_Data& usenum) :
-			Base_Item(BASE_NUM, itype, 0), store_num(usenum) {};
+			Base_Item(BASE_NUM, itype, 0), store_num(usenum) {}
 		virtual void get_data(Base_Data& num_data)override {
 			num_data = store_num;
 		}
@@ -299,7 +300,7 @@ private:
         Noraml_Num(_My_List* baselist, const Base_Data& usenum) :
 			Node_Num(baselist, NUM, usenum) {};
 		Noraml_Num(const Base_Data& usenum) :
-			Node_Num(NUM, usenum) {};
+			Node_Num(NUM, usenum) {}
         virtual _My_List_Iter operation(void)override {
             return ++get_iter();
         }
@@ -313,7 +314,7 @@ private:
 		Varible_Num(_My_List* baselist, const Base_Data& usenum) :
 			Node_Num(baselist, NUM_VARIBLE, usenum) {};
 		Varible_Num(const Base_Data& usenum) :
-			Node_Num(NUM_VARIBLE, usenum) {};
+			Node_Num(NUM_VARIBLE, usenum) {}
 		virtual _My_List_Iter operation(void)override {
 			return ++get_iter();
 		}
@@ -456,7 +457,7 @@ private:
     class Comma_Operator :public Node_Empty {
     public:
         Comma_Operator(_My_List* baselist) :
-            Node_Empty(baselist, COMMA_OPRERATOR,comma_priority) {};
+            Node_Empty(baselist, COMMA_OPRERATOR,comma_priority) {}
 		virtual _My_List_Iter operation(void)override;
     };
     /**
@@ -538,7 +539,7 @@ private:
 		Node_Elem_Num(const void* addr, Elem_Type ptype, size_t xupos, size_t yupos = 0) :
 			Node_Num(NUM_ELEME,Base_Data()), xpos(xupos), ypos(yupos), type(ptype), paddr(const_cast<void*>(addr)) {}
 		Node_Elem_Num(_My_List* baselist, const void* addr, Elem_Type ptype, size_t xupos, size_t yupos = 0) :
-			Node_Num(baselist, NUM_ELEME, Base_Data()), xpos(xupos), ypos(yupos), type(ptype), paddr(const_cast<void*>(addr)) {};
+			Node_Num(baselist, NUM_ELEME, Base_Data()), xpos(xupos), ypos(yupos), type(ptype), paddr(const_cast<void*>(addr)) {}
 		Node_Elem_Num(Base_Data&& pdata, Elem_Type ptype, size_t xupos, size_t yupos = 0) :
 			Node_Num(NUM_ELEME, std::move(pdata)), xpos(xupos), ypos(yupos), type(ptype){
 			const void* addr;
@@ -550,7 +551,7 @@ private:
 			const void* addr;
 			store_num.get_data(addr);
 			paddr = const_cast<void*>(addr);
-		};
+		}
 		void assign(Base_Data& num_data, Variable_Map* pmap);
 		virtual _My_List_Iter operation(void)override {
 			return ++get_iter();

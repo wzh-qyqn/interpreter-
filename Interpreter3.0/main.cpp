@@ -36,7 +36,7 @@
 #define MAIN_TEST
 using namespace std;
 #ifdef MAIN_TEST
-typedef inter::Str_Type use_string;
+typedef interpret::Str_Type use_string;
 bool is_cmd(const use_string& str, const use_string& cmd, const use_string& val = "\n") {
     size_t offset;
     if ((offset = str.find(cmd, 0)) != use_string::npos) {
@@ -59,7 +59,7 @@ static inline unsigned int rand_range(unsigned int min, unsigned int max) {
     return rand()*time(0) % (max - min + 1) + min;
 }
 void test_random(int num, use_string&str) {
-    const array<inter::Char_Type, 6>test_opre = { '+','-','*','/','^','%'};
+    const array<interpret::Char_Type, 6>test_opre = { '+','-','*','/','^','%'};
     const array<const use_string, 16>test_func = {
         "sin","cos","tan",
         "asin","acos","atan",
@@ -99,7 +99,7 @@ void test_random(int num, use_string&str) {
 }
 int main(int argc, char* argv[])
 {
-	inter::Interpreter test;
+	interpret::Interpreter test;
     use_string str;
     SetConsoleTitle("¼ÆËãÆ÷(with C++)");
     std::system("color F0");
@@ -133,20 +133,20 @@ int main(int argc, char* argv[])
                 << "            ==================================" << endl;
         }
         else if (is_cmd(str, "show", "func")) {
-            auto&& pIter= inter::Interpreter::get_const_func();
+            auto&& pIter= interpret::Interpreter::get_const_func();
 			for (const auto& use_iter : pIter) {
 				cout << use_iter << std::endl;
 			}
         }
         else if (is_cmd(str, "show", "opre")) {
-			auto&& pIter = inter::Interpreter::get_const_opre();
+			auto&& pIter = interpret::Interpreter::get_const_opre();
 			for (const auto& use_iter : pIter) {
 				cout << use_iter << ' ';
 			}
 			cout << std::endl;
         }
         else if (is_cmd(str, "show", "const")) {
-			auto&& pIter = inter::Interpreter::get_const_num();
+			auto&& pIter = interpret::Interpreter::get_const_num();
 			for (const auto& use_iter : pIter) {
 				cout << use_iter << std::endl;
 			}
@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
 //¾ØÕóÀàµÄ²âÊÔ
 #include "matix.h"
 template<typename T>
-std::ostream& operator<< (std::ostream& os, const inter::Matrix<T>& pmat) {
+std::ostream& operator<< (std::ostream& os, const interpret::Matrix<T>& pmat) {
 	for (size_t i = 0; i < pmat.row(); i++) {
 		for (size_t j = 0; j < pmat.col(); j++) {
 			os << pmat.at(i, j) << ' ';
@@ -235,7 +235,7 @@ int main(void) {
 	for (unsigned int i = 0; i < test_row * test_col; i++) {
 		ptest[i] = rand() % 10;
 	}
-	inter::Matrix<double> test(test_row, test_col, ptest);
+	interpret::Matrix<double> test(test_row, test_col, ptest);
 	cout << test;
 	
 	cout << "trans test:" << endl;

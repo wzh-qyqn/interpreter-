@@ -1,10 +1,10 @@
 #pragma once
-#ifndef __MATRIX__H__
-#define __MATRIX__H__
+#ifndef __INTERPRETER_MATRIX__H__
+#define __INTERPRETER_MATRIX__H__
 
 #include "interpreter_err.h"
 
-namespace inter {
+namespace interpret {
 
 template <typename T>
 class Matrix {
@@ -68,7 +68,7 @@ inline void Matrix<T>::sum_mul(T * paddr, size_t * psave, \
 		res += (sign_flag ? T(-1) : T(1))*buf_res;
 		return;
 	}
-	for (size_t i = 0; i < max_num; i++) {
+	for (size_t i = 0; i < max_num; i++) {//Éú³ÉÅÅÁÐ
 		bool flag = false;
 		bool buf_flag = false;
 		for (size_t j = 0; j < save_num; j++) {
@@ -98,7 +98,10 @@ template<typename T>
 inline Matrix<T>::Matrix(size_t line_num, size_t column_num) {
 	row_num = line_num;
 	col_num = column_num;
-	paddr = new T[row_num*col_num]();
+	paddr = new T[row_num*col_num];
+	for (size_t i = 0; i < row_num*col_num; i++) {
+		paddr[i] = T(0);
+	}
 }
 
 template<typename T>

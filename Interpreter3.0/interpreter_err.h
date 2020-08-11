@@ -4,7 +4,7 @@
 #include <exception>
 #include <string>
 //使用的异常
-namespace inter {
+namespace interpret {
 	class inter_error :public std::exception {
 	public:
 		inter_error(const std::string& str = "interpreter error!") :
