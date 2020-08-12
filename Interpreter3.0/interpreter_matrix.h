@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __INTERPRETER_MATRIX__H__
-#define __INTERPRETER_MATRIX__H__
+#ifndef INTERPRETER_MATRIX__H__
+#define INTERPRETER_MATRIX__H__
 
 #include "interpreter_err.h"
 

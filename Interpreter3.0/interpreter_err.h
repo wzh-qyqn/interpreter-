@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __INTERPRETER_ERR_H__
-#define __INTERPRETER_ERR_H__
+#ifndef INTERPRETER_ERR_H__
+#define INTERPRETER_ERR_H__
 #include <exception>
 #include <string>
 //使用的异常

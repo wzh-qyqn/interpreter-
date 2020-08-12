@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __INTERPRETER_TYPE_H__
-#define __INTERPRETER_TYPE_H__
+#ifndef INTERPRETER_TYPE_H__
+#define INTERPRETER_TYPE_H__
 #include <string>
 #include <iostream>
 #include <complex>

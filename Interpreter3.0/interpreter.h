@@ -7,8 +7,8 @@
 *				支持复数运算与变量过程中定义，支持矩阵运算。
 ********************************************************************************/
 #pragma once
-#ifndef __INTERPRETER__H__
-#define __INTERPRETER__H__
+#ifndef INTERPRETER__H__
+#define INTERPRETER__H__
 #include <list>
 #include <complex>
 #include <map>
