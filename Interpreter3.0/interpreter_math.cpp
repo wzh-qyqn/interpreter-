@@ -502,8 +502,8 @@ Num_Type inline real(const Complex_Type& a) {
     return a.real();
 }
 Use_Data urtgamma(const Use_Data&a);
-static inline Interpreter::_Data_Array rtgamma(const Interpreter::_Data_Array* a) {
-	Interpreter::_Data_Array pvec;
+static inline Interpreter::Array_Data rtgamma(const Interpreter::Array_Data* a) {
+	Interpreter::Array_Data pvec;
 	for (size_t i = 0; i < a->size(); i++) {
 		pvec.push_back(urtgamma((*a)[i]));
 	}
@@ -564,11 +564,11 @@ static inline Matrix_Type rtranse(const Matrix_Type* a) {
 static inline Cmatrix_Type rtranse(const Cmatrix_Type* a) {
 	return a->rev();
 }
-static inline Num_Type rsize(const Interpreter::_Data_Array* pvec) {
+static inline Num_Type rsize(const Interpreter::Array_Data* pvec) {
 	return Num_Type(pvec->size());
 }
-static inline Interpreter::_Data_Array rsort(const Interpreter::_Data_Array* pvec) {
-	Interpreter::_Data_Array buf_pvec(*pvec);
+static inline Interpreter::Array_Data rsort(const Interpreter::Array_Data* pvec) {
+	Interpreter::Array_Data buf_pvec(*pvec);
 	sort(buf_pvec.begin(), buf_pvec.end());
 	return buf_pvec;
 }
@@ -623,8 +623,8 @@ bool rbool(const Use_Data& a) {
 	}
 
 }
-static inline Interpreter::_Data_Array rbool(const Interpreter::_Data_Array* a) {
-	Interpreter::_Data_Array parray;
+static inline Interpreter::Array_Data rbool(const Interpreter::Array_Data* a) {
+	Interpreter::Array_Data parray;
 	for (size_t i = 0; i < a->size(); i++) {
 		parray.push_back(Use_Data(rbool(a->at(i))));
 	}
@@ -632,7 +632,7 @@ static inline Interpreter::_Data_Array rbool(const Interpreter::_Data_Array* a) 
 }
 Use_Data urbool(const Use_Data& a) {
 	if (a.get_type() == Interpreter::DATA_ARRAY) {
-		const Interpreter::_Data_Array* a1;
+		const Interpreter::Array_Data* a1;
 		a.get_data(a1);
 		return Use_Data(rbool(a1));
 	}
@@ -671,8 +671,8 @@ Num_Type rnum(const Use_Data& a) {
 		throw show_err("转化失败，类型错误");
 	}
 }
-static inline Interpreter::_Data_Array rnum(const Interpreter::_Data_Array* a) {
-	Interpreter::_Data_Array parray;
+static inline Interpreter::Array_Data rnum(const Interpreter::Array_Data* a) {
+	Interpreter::Array_Data parray;
 	for (size_t i = 0; i < a->size(); i++) {
 		parray.push_back(Use_Data(rnum(a->at(i))));
 	}
@@ -680,7 +680,7 @@ static inline Interpreter::_Data_Array rnum(const Interpreter::_Data_Array* a) {
 }
 Use_Data urnum(const Use_Data& a) {
 	if (a.get_type() == Interpreter::DATA_ARRAY) {
-		const Interpreter::_Data_Array* a1;
+		const Interpreter::Array_Data* a1;
 		a.get_data(a1);
 		return Use_Data(rnum(a1));
 	}
@@ -728,8 +728,8 @@ Complex_Type rcomp(const Use_Data& a) {
 		throw show_err("转化失败，类型错误");
 	}
 }
-static inline Interpreter::_Data_Array rcomp(const Interpreter::_Data_Array* a) {
-	Interpreter::_Data_Array parray;
+static inline Interpreter::Array_Data rcomp(const Interpreter::Array_Data* a) {
+	Interpreter::Array_Data parray;
 	for (size_t i = 0; i < a->size(); i++) {
 		parray.push_back(Use_Data(rcomp(a->at(i))));
 	}
@@ -737,7 +737,7 @@ static inline Interpreter::_Data_Array rcomp(const Interpreter::_Data_Array* a) 
 }
 Use_Data urcomp(const Use_Data& a) {
 	if (a.get_type() == Interpreter::DATA_ARRAY) {
-		const Interpreter::_Data_Array* a1;
+		const Interpreter::Array_Data* a1;
 		a.get_data(a1);
 		return Use_Data(rcomp(a1));
 	}
@@ -781,7 +781,7 @@ Matrix_Type rmatrix(const Use_Data& a) {
 		throw show_err("转化失败，类型错误");
 	}
 }
-static inline Matrix_Type rmatrix(const Interpreter::_Data_Array* a) {
+static inline Matrix_Type rmatrix(const Interpreter::Array_Data* a) {
 	const size_t& data_size = a->size();
 	Num_Type* pbuf = new Num_Type[data_size];
 	try {
@@ -797,7 +797,7 @@ static inline Matrix_Type rmatrix(const Interpreter::_Data_Array* a) {
 }
 Use_Data urmatrix(const Use_Data& a) {
 	if (a.get_type() == Interpreter::DATA_ARRAY) {
-		const Interpreter::_Data_Array* a1;
+		const Interpreter::Array_Data* a1;
 		a.get_data(a1);
 		return Use_Data(rmatrix(a1));
 	}
@@ -854,7 +854,7 @@ Cmatrix_Type rcmatrix(const Use_Data& a) {
 		throw show_err("转化失败，类型错误");
 	}
 }
-static inline Cmatrix_Type rcmatrix(const Interpreter::_Data_Array* a) {
+static inline Cmatrix_Type rcmatrix(const Interpreter::Array_Data* a) {
 	Complex_Type* pbuf = new Complex_Type[a->size()];
 	try {
 		for (size_t i = 0; i < a->size(); i++) {
@@ -869,7 +869,7 @@ static inline Cmatrix_Type rcmatrix(const Interpreter::_Data_Array* a) {
 }
 Use_Data urcmatrix(const Use_Data& a) {
 	if (a.get_type() == Interpreter::DATA_ARRAY) {
-		const Interpreter::_Data_Array* a1;
+		const Interpreter::Array_Data* a1;
 		a.get_data(a1);
 		return Use_Data(rcmatrix(a1));
 	}
@@ -878,23 +878,23 @@ Use_Data urcmatrix(const Use_Data& a) {
 }
 
 //强制转换为数组
-static inline Interpreter::_Data_Array rarray(const bool a) {
-	Interpreter::_Data_Array pvec;
+static inline Interpreter::Array_Data rarray(const bool a) {
+	Interpreter::Array_Data pvec;
 	pvec.push_back(Use_Data(a));
 	return pvec;
 }
-static inline Interpreter::_Data_Array rarray(const Num_Type a) {
-	Interpreter::_Data_Array pvec;
+static inline Interpreter::Array_Data rarray(const Num_Type a) {
+	Interpreter::Array_Data pvec;
 	pvec.push_back(Use_Data(a));
 	return pvec;
 }
-static inline Interpreter::_Data_Array rarray(const Complex_Type a) {
-	Interpreter::_Data_Array pvec;
+static inline Interpreter::Array_Data rarray(const Complex_Type a) {
+	Interpreter::Array_Data pvec;
 	pvec.push_back(Use_Data(a));
 	return pvec;
 }
-static inline Interpreter::_Data_Array rarray(const Matrix_Type* a) {
-	Interpreter::_Data_Array pvec;
+static inline Interpreter::Array_Data rarray(const Matrix_Type* a) {
+	Interpreter::Array_Data pvec;
 	for (size_t i = 0; i < a->row(); i++) {
 		for (size_t j = 0; j < a->col(); j++) {
 			pvec.push_back(Use_Data(a->at(i, j)));
@@ -902,8 +902,8 @@ static inline Interpreter::_Data_Array rarray(const Matrix_Type* a) {
 	}
 	return pvec;
 }
-static inline Interpreter::_Data_Array rarray(const Cmatrix_Type* a) {
-	Interpreter::_Data_Array pvec;
+static inline Interpreter::Array_Data rarray(const Cmatrix_Type* a) {
+	Interpreter::Array_Data pvec;
 	for (size_t i = 0; i < a->row(); i++) {
 		for (size_t j = 0; j < a->col(); j++) {
 			pvec.push_back(Use_Data(a->at(i, j)));
@@ -911,11 +911,11 @@ static inline Interpreter::_Data_Array rarray(const Cmatrix_Type* a) {
 	}
 	return pvec;
 }
-static inline Interpreter::_Data_Array rarray(const Interpreter::_Data_Array* a) {
+static inline Interpreter::Array_Data rarray(const Interpreter::Array_Data* a) {
 	return *a;
 }
 
-Interpreter::_Data_Array rarray(const Use_Data& a) {
+Interpreter::Array_Data rarray(const Use_Data& a) {
 	switch (a.get_type()) {
 	case Interpreter::DATA_BOOL: {
 		bool a1;
@@ -943,7 +943,7 @@ Interpreter::_Data_Array rarray(const Use_Data& a) {
 		return rarray(a1);
 	}
 	case Interpreter::DATA_ARRAY: {
-		const Interpreter::_Data_Array* a1;
+		const Interpreter::Array_Data* a1;
 		a.get_data(a1);
 		return rarray(a1);
 	}
@@ -958,7 +958,7 @@ Use_Data urarry(const Use_Data& a) {
 
 Use_Data rzero(const Use_Data& a) {
 	if (a.get_type() == Interpreter::DATA_ARRAY) {
-		const Interpreter::_Data_Array* pvec;
+		const Interpreter::Array_Data* pvec;
 		a.get_data(pvec);
 		if (pvec->size() == 2) {
 			Num_Type row_num, col_num;
@@ -973,7 +973,7 @@ Use_Data rzero(const Use_Data& a) {
 
 Use_Data rdim(const Use_Data& a) {
 	if (a.get_type() == Interpreter::DATA_ARRAY) {
-		const Interpreter::_Data_Array* pvec;
+		const Interpreter::Array_Data* pvec;
 		a.get_data(pvec);
 		if (pvec->size() == 2) {
 			Num_Type row_num, col_num;
@@ -1015,7 +1015,7 @@ Use_Data rdim(const Use_Data& a) {
 #define ARRAY_FUNCTION_DECLARE(name)    Use_Data a##name##(const Use_Data& a){\
 											switch(a.get_type()){\
 											case Interpreter::DATA_ARRAY:{\
-												const Interpreter::_Data_Array* a1;\
+												const Interpreter::Array_Data* a1;\
 												a.get_data(a1);\
 												return Use_Data(name##(a1));\
 											}\
@@ -1041,7 +1041,7 @@ Use_Data rdim(const Use_Data& a) {
 											return Use_Data(name##(a1));\
 										}\
 										case Interpreter::DATA_ARRAY: {\
-											const Interpreter::_Data_Array* a1;\
+											const Interpreter::Array_Data* a1;\
 											a.get_data(a1);\
 											return Use_Data(name##(a1));\
 										}\
@@ -1091,8 +1091,8 @@ Use_Data rdim(const Use_Data& a) {
 														return Use_Data(name##(a1, b1)); \
 														}\
 													case Interpreter::DATA_ARRAY: {\
-														const Interpreter::_Data_Array *b1;\
-														Interpreter::_Data_Array pvec;\
+														const Interpreter::Array_Data *b1;\
+														Interpreter::Array_Data pvec;\
 														b.get_data(b1);\
 														for (size_t i = 0; i < b1->size(); i++) {\
 															pvec.push_back(u##name##(a, (*b1)[i]));\
@@ -1133,8 +1133,8 @@ Use_Data rdim(const Use_Data& a) {
 														return Use_Data(name##(a1, b1)); \
 														}\
 													case Interpreter::DATA_ARRAY: {\
-														const Interpreter::_Data_Array *b1;\
-														Interpreter::_Data_Array pvec;\
+														const Interpreter::Array_Data *b1;\
+														Interpreter::Array_Data pvec;\
 														b.get_data(b1);\
 														for (size_t i = 0; i < b1->size(); i++) {\
 															pvec.push_back(u##name##(a, (*b1)[i]));\
@@ -1175,8 +1175,8 @@ Use_Data rdim(const Use_Data& a) {
 														return Use_Data(name##(a1, b1)); \
 														}\
 													case Interpreter::DATA_ARRAY: {\
-														const Interpreter::_Data_Array *b1;\
-														Interpreter::_Data_Array pvec;\
+														const Interpreter::Array_Data *b1;\
+														Interpreter::Array_Data pvec;\
 														b.get_data(b1);\
 														for (size_t i = 0; i < b1->size(); i++) {\
 															pvec.push_back(u##name##(a, (*b1)[i]));\
@@ -1217,8 +1217,8 @@ Use_Data rdim(const Use_Data& a) {
 														return Use_Data(name##(a1, b1)); \
 														}\
 													case Interpreter::DATA_ARRAY: {\
-														const Interpreter::_Data_Array *b1;\
-														Interpreter::_Data_Array pvec;\
+														const Interpreter::Array_Data *b1;\
+														Interpreter::Array_Data pvec;\
 														b.get_data(b1);\
 														for (size_t i = 0; i < b1->size(); i++) {\
 															pvec.push_back(u##name##(a, (*b1)[i]));\
@@ -1259,8 +1259,8 @@ Use_Data rdim(const Use_Data& a) {
 														return Use_Data(name##(a1, b1)); \
 														}\
 													case Interpreter::DATA_ARRAY: {\
-														const Interpreter::_Data_Array *b1;\
-														Interpreter::_Data_Array pvec;\
+														const Interpreter::Array_Data *b1;\
+														Interpreter::Array_Data pvec;\
 														b.get_data(b1);\
 														for (size_t i = 0; i < b1->size(); i++) {\
 															pvec.push_back(u##name##(a, (*b1)[i]));\
@@ -1272,11 +1272,11 @@ Use_Data rdim(const Use_Data& a) {
 													}\
 												}\
 												case Interpreter::DATA_ARRAY: {\
-													const Interpreter::_Data_Array *a1;\
-													Interpreter::_Data_Array pvec;\
+													const Interpreter::Array_Data *a1;\
+													Interpreter::Array_Data pvec;\
 													a.get_data(a1);\
 													if (b.get_type() == Interpreter::DATA_ARRAY) {\
-														const Interpreter::_Data_Array *b1;\
+														const Interpreter::Array_Data *b1;\
 														b.get_data(b1);\
 														if (a1->size() != b1->size())\
 															throw show_err("数组运算维数不匹配");\
@@ -1299,8 +1299,8 @@ Use_Data rdim(const Use_Data& a) {
  
 
 #define SINGLEVAR_FUNC_NEWDECLARE(name)		Use_Data ur##name##(const Use_Data& a);\
-											static inline Interpreter::_Data_Array r##name##(const Interpreter::_Data_Array* a){\
-												Interpreter::_Data_Array pvec;\
+											static inline Interpreter::Array_Data r##name##(const Interpreter::Array_Data* a){\
+												Interpreter::Array_Data pvec;\
 												for (size_t i = 0; i < a->size(); i++) {\
 													pvec.push_back(ur##name##((*a)[i]));\
 												}\
@@ -1377,7 +1377,7 @@ MATRIX_FUNCTION_DECLARE(rcol)
 ARRAY_FUNCTION_DECLARE(rsize)
 ARRAY_FUNCTION_DECLARE(rsort)
 
-static inline Use_Data rsum(const Interpreter::_Data_Array* pvec) {
+static inline Use_Data rsum(const Interpreter::Array_Data* pvec) {
 	Use_Data pdata(Num_Type(0));
 	for (size_t i = 0; i < pvec->size(); i++) {
 		pdata = uraddition(pdata, pvec->at(i));

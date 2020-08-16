@@ -14,10 +14,10 @@ inline void interpret::Interpreter::Base_Data::_Malloc(const Base_Data & pData) 
 		data = new bool(*reinterpret_cast<bool*>(pData.data));
 		break;
 	case DATA_ARRAY:
-		data = new _Data_Array(*reinterpret_cast<_Data_Array*>(pData.data));
-		for (size_t i = 0; i < reinterpret_cast<_Data_Array*>(data)->size(); i++) {
-			if (reinterpret_cast<_Data_Array*>(data)->at(i).is_shadow()) {
-				reinterpret_cast<_Data_Array*>(data)->at(i) = reinterpret_cast<_Data_Array*>(data)->at(i).get_real();
+		data = new Array_Data(*reinterpret_cast<Array_Data*>(pData.data));
+		for (size_t i = 0; i < reinterpret_cast<Array_Data*>(data)->size(); i++) {
+			if (reinterpret_cast<Array_Data*>(data)->at(i).is_shadow()) {
+				reinterpret_cast<Array_Data*>(data)->at(i) = reinterpret_cast<Array_Data*>(data)->at(i).get_real();
 			}
 		}
 		break;
@@ -46,7 +46,7 @@ inline void interpret::Interpreter::Base_Data::_Free(void) {
 		delete reinterpret_cast<bool*>(data);
 		break;
 	case DATA_ARRAY:
-		delete reinterpret_cast<_Data_Array*>(data);
+		delete reinterpret_cast<Array_Data*>(data);
 		break;
 	case DATA_MATRIX:
 		delete reinterpret_cast<Matrix_Type*>(data);
@@ -86,8 +86,8 @@ interpret::Interpreter::Base_Data::Base_Data(const bool & res) {
 	d_type = DATA_BOOL;
 }
 
-interpret::Interpreter::Base_Data::Base_Data(const _Data_Array & res) {
-	data = new _Data_Array(res);
+interpret::Interpreter::Base_Data::Base_Data(const Array_Data & res) {
+	data = new Array_Data(res);
 	is_own = true;
 	is_init = true;
 	d_type = DATA_ARRAY;
@@ -123,9 +123,9 @@ interpret::Interpreter::Base_Data::Base_Data(Cmatrix_Type && res){
 	d_type = DATA_CMATRIX;
 }
 
-interpret::Interpreter::Base_Data::Base_Data(_Data_Array && res){
-	data = new _Data_Array;
-	(*reinterpret_cast<_Data_Array*>(data)) = std::move(res);
+interpret::Interpreter::Base_Data::Base_Data(Array_Data && res){
+	data = new Array_Data;
+	(*reinterpret_cast<Array_Data*>(data)) = std::move(res);
 	is_own = true;
 	is_init = true;
 	d_type = DATA_ARRAY;
@@ -212,6 +212,49 @@ bool interpret::Interpreter::Base_Data::operator<(const Base_Data &pdata)const{
 			bool rdata;
 			pdata.get_data(rdata);
 			return Num_Type(ldata) < Num_Type(rdata);
+		}
+		default:
+			throw show_err("数据类型不支持比较大小");
+		}
+	}
+	default:
+		throw show_err("数据类型不支持比较大小");
+	}
+	}
+}
+
+bool interpret::Interpreter::Base_Data::operator>(const Base_Data &pdata) const{
+	switch (get_type()) {
+	case Interpreter::DATA_DOUBLE: {
+		Num_Type ldata;
+		get_data(ldata);
+		switch (pdata.get_type()) {
+		case Interpreter::DATA_DOUBLE: {
+			Num_Type rdata;
+			pdata.get_data(rdata);
+			return ldata > rdata;
+		}
+		case Interpreter::DATA_BOOL: {
+			bool rdata;
+			pdata.get_data(rdata);
+			return ldata > Num_Type(rdata);
+		}
+		default:
+			throw show_err("数据类型不支持比较大小");
+		}
+	case Interpreter::DATA_BOOL: {
+		bool ldata;
+		get_data(ldata);
+		switch (pdata.get_type()) {
+		case Interpreter::DATA_DOUBLE: {
+			Num_Type rdata;
+			pdata.get_data(rdata);
+			return Num_Type(ldata) > rdata;
+		}
+		case Interpreter::DATA_BOOL: {
+			bool rdata;
+			pdata.get_data(rdata);
+			return Num_Type(ldata) > Num_Type(rdata);
 		}
 		default:
 			throw show_err("数据类型不支持比较大小");
@@ -334,10 +377,10 @@ void interpret::Interpreter::Base_Data::get_data(bool & res) const {
 		throw show_err("试图查询未初始化的数值类型");
 }
 
-void interpret::Interpreter::Base_Data::get_data(const _Data_Array *& res) const {
+void interpret::Interpreter::Base_Data::get_data(const Array_Data *& res) const {
 	if (is_init) {
 		if (DATA_ARRAY == d_type) {
-			res = reinterpret_cast<const _Data_Array *>(data);
+			res = reinterpret_cast<const Array_Data *>(data);
 		}
 		else
 			throw show_err("数据类型：", data_to_str(d_type), "试图获取数组数据");
@@ -401,7 +444,7 @@ interpret::Ostr_Type& interpret::operator<<(interpret::Ostr_Type&os, const inter
 		break;
 	}
 	case interpret::Interpreter::DATA_ARRAY: {
-		const interpret::Interpreter::_Data_Array* a;
+		const interpret::Interpreter::Array_Data* a;
 		pData.get_data(a);
 		os << '(';
 		for (auto const& iter : *a) {
@@ -504,7 +547,7 @@ void interpret::Interpreter::Base_Item::get_data(_My_List *& uselist) {
 	throw show_err("链表指针获取错误，错误节点属性：", item_to_str(i_type));
 }
 
-void interpret::Interpreter::Base_Item::get_data(_Data_Array *& usevector) {
+void interpret::Interpreter::Base_Item::get_data(Array_Data *& usevector) {
 	throw show_err("向量指针获取错误，错误节点属性：", item_to_str(i_type));
 }
 
@@ -872,20 +915,20 @@ bool interpret::Interpreter::slove(const Str_Type & str) {
 		analyze_string(str, buf_list);
 		is_ok = true;
 	}
-	catch (const std::logic_error&err) {
-		*os_err << err.what() << std::endl;
-		clear_list(buf_list);
-		final_result = Base_Data(std::numeric_limits<Num_Type>::quiet_NaN());
-		is_ok = true;
-	}
 	catch (const inter_error& err) {
 		*os_err << err.what() << std::endl;
 		clear_list(buf_list);
 		is_ok = false;
 	}
 	catch (const std::exception& err) {
-		*os_err << err.what() << std::endl;
+		clear_list(buf_list);
 		is_ok = false;
+		throw err;
+	}
+	catch (...) {
+		clear_list(buf_list);
+		is_ok = false;
+		throw std::exception("出现了其他未知错误!!!");
 	}
 	return is_ok;
 }
@@ -991,7 +1034,7 @@ interpret::Interpreter::_My_List_Iter interpret::Interpreter::Bracket_Operator::
 				priv->get_data(pbuf);
 				switch (pbuf.get_type()) {
 				case DATA_ARRAY: {
-					const _Data_Array* pvec;
+					const Array_Data* pvec;
 					Base_Item* pItem;
 					Num_Type poffset;
 					pbuf.get_data(pvec);
@@ -1025,7 +1068,7 @@ interpret::Interpreter::_My_List_Iter interpret::Interpreter::Bracket_Operator::
 						return instead(pItem);
 					}
 					case DATA_ARRAY: {
-						const _Data_Array* pvec;
+						const Array_Data* pvec;
 						pself.get_data(pvec);
 						if(pvec->size()!=2)
 							throw show_err("访问矩阵元素的下标个数错误！");
@@ -1063,7 +1106,7 @@ interpret::Interpreter::_My_List_Iter interpret::Interpreter::Bracket_Operator::
 						return instead(pItem);
 					}
 					case DATA_ARRAY: {
-						const _Data_Array* pvec;
+						const Array_Data* pvec;
 						pself.get_data(pvec);
 						if (pvec->size() != 2)
 							throw show_err("访问矩阵元素的下标个数错误！");
@@ -1095,7 +1138,7 @@ interpret::Interpreter::_My_List_Iter interpret::Interpreter::Bracket_Operator::
 
 
 interpret::Interpreter::_My_List_Iter interpret::Interpreter::Comma_Operator::operation(void) {
-	_Data_Array pPackage;
+	Array_Data pPackage;
 	_My_List_Iter comma_iter = get_iter();
 	auto next = [](_My_List_Iter pIter) {return ++pIter; };
 	auto priv = [](_My_List_Iter pIter) {return --pIter; };
@@ -1374,7 +1417,7 @@ interpret::Interpreter::_My_List_Iter interpret::Interpreter::SQ_Bracket_Operato
 void interpret::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variable_Map * pmap) {
 	switch (type) {
 	case ARRAY_1:
-		reinterpret_cast<_Data_Array*>(paddr)->at(xpos) = num_data.get_real();
+		reinterpret_cast<Array_Data*>(paddr)->at(xpos) = num_data.get_real();
 		break;
 	case MATRIX_1: {
 		const auto&& lmat = reinterpret_cast<Matrix_Type*>(paddr);
@@ -1482,7 +1525,7 @@ void interpret::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variabl
 void interpret::Interpreter::Node_Elem_Num::get_data(Base_Data & num_data) {
 	switch (type) {
 	case ARRAY_1: {
-		num_data = reinterpret_cast<_Data_Array*>(paddr)->at(xpos);
+		num_data = reinterpret_cast<Array_Data*>(paddr)->at(xpos);
 		break;
 	}
 	case MATRIX_1: {

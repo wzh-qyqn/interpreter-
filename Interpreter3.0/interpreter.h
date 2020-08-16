@@ -53,7 +53,7 @@ class Interpreter {
 public:
 
 	class Base_Data;
-	typedef std::vector<Base_Data> _Data_Array;
+	typedef std::vector<Base_Data> Array_Data;
 
     /**
     * @brief 运行过程支持的基础数据类型枚举
@@ -83,14 +83,15 @@ public:
 		explicit Base_Data(const Num_Type&);
 		explicit Base_Data(const Complex_Type&);
 		explicit Base_Data(const bool&);
-		explicit Base_Data(const _Data_Array&);
+		explicit Base_Data(const Array_Data&);
 		explicit Base_Data(const Matrix_Type&);
 		explicit Base_Data(const Cmatrix_Type&);
 		explicit Base_Data(Matrix_Type&&);
 		explicit Base_Data(Cmatrix_Type&&);
-		explicit Base_Data(_Data_Array&&);
+		explicit Base_Data(Array_Data&&);
 		explicit Base_Data(const Base_Data&);	
 		bool operator<(const Base_Data&)const;
+		bool operator>(const Base_Data&)const;
 		Base_Data& operator=(const Base_Data&);
 		Base_Data(Base_Data&&);
 		Base_Data& operator=(Base_Data&&);
@@ -99,11 +100,11 @@ public:
 		Base_Data get_real() const;				//获取真实值
 		bool is_shadow()const;					//对是否是标签进行判断
 		Data_Type get_type() const;				//获取存储的数据类型
-		void get_data(const void* &)const;			//获取标签地址
+		void get_data(const void* &)const;		//获取标签地址
 		void get_data(Num_Type&) const;			//获取数据
 		void get_data(Complex_Type&)const;
 		void get_data(bool&)const;
-		void get_data(const _Data_Array*&)const;
+		void get_data(const Array_Data*&)const;
 		void get_data(const Matrix_Type*&)const;
 		void get_data(const Cmatrix_Type*&)const;
 		~Base_Data();
@@ -136,7 +137,7 @@ private:
     typedef _My_List::iterator _My_List_Iter;
     typedef std::map<Str_Type, Base_Data> _My_Map;
     typedef _My_Map::iterator _My_Map_Iter;
-    typedef _Data_Array::iterator _My_Vector_Iter;
+    typedef Array_Data::iterator _My_Vector_Iter;
     typedef std::map<const void*, _My_Map_Iter> _My_Point_Map;
 
     /**
@@ -261,7 +262,7 @@ private:
 		virtual void get_data(size_t& num);
 		virtual void get_data(Str_Type &usestr);
 		virtual void get_data(_My_List* &uselist);
-		virtual void get_data(_Data_Array* &usevector);
+		virtual void get_data(Array_Data* &usevector);
 		int get_prio();
 		_My_List_Iter change_master(_My_List* uselist);
 		_My_List_Iter change_master(_My_List* uselist, _My_List_Iter pIter);
@@ -387,14 +388,14 @@ private:
         }
     };
 	/**
-	* @brief 附加数据为 _Data_Array的Base_Item 派生类
+	* @brief 附加数据为 Array_Data的Base_Item 派生类
 	*/
     class Node_Vector :public Base_Item {
     protected:
-        _Data_Array use_vector;
+        Array_Data use_vector;
     public:
         virtual _My_List_Iter operation(void)override = 0;
-        virtual void get_data(_Data_Array* &usevector)override {
+        virtual void get_data(Array_Data* &usevector)override {
             usevector = &use_vector;
         }
         Node_Vector(Item_Type itype, int prio) ://不初始化
