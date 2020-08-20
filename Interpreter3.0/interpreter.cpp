@@ -1228,7 +1228,10 @@ interpret::Interpreter::Base_Data interpret::Interpreter::Variable_Map::data_cha
 	if (ret != var_p_map.end()) {
 		const void* pnew;
 		_My_Map_Iter pIter = ret->second;
-		pIter->second = std::move(pdata.get_real());
+		if (pIter->second.is_shadow())
+			pIter->second = std::move(pdata.get_real());
+		else
+			pIter->second = std::move(pdata);
 		pIter->second.get_data(pnew);
 		var_p_map.erase(psrc);
 		var_p_map.insert(std::make_pair(pnew, pIter));
