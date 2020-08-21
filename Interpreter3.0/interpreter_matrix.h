@@ -18,13 +18,11 @@ private:
 public:
 	explicit Matrix();
 	explicit Matrix(size_t line_num, size_t column_num);
-	explicit Matrix(size_t line_num, size_t column_num,T* pfirst, bool auto_alloc = true);
-	explicit Matrix(const T& res);
 	Matrix(const Matrix& pmat);
 	Matrix(Matrix&& pmat);
 	constexpr size_t row() const;//矩阵行数
 	constexpr size_t col() const;//矩阵列数
-	constexpr T* data()const;
+	constexpr T* data()const;	 //数据源地址
 	constexpr T& at(size_t lnum, size_t cnum) const;//访问矩阵元素，与C语言二维数组访问规则一致，从0~row-1 , 0~col-1
 	Matrix	rev() const;			//矩阵转置
 	Matrix	alg(size_t lnum, size_t cnum) const;//求指定坐标下的余子式
@@ -99,31 +97,6 @@ inline Matrix<T>::Matrix(size_t line_num, size_t column_num) {
 	row_num = line_num;
 	col_num = column_num;
 	paddr = new T[row_num*col_num];
-	for (size_t i = 0; i < row_num*col_num; i++) {
-		paddr[i] = T(0);
-	}
-}
-
-template<typename T>
-inline Matrix<T>::Matrix(size_t line_num, size_t column_num, T * pfirst, bool auto_alloc) {
-	row_num = line_num;
-	col_num = column_num;
-	if (auto_alloc) {
-		paddr = new T[row_num*col_num];
-		for (size_t i = 0; i < row_num*col_num; i++) {
-			paddr[i] = pfirst[i];
-		}
-	}
-	else
-		paddr = pfirst;
-}
-
-template<typename T>
-inline Matrix<T>::Matrix(const T & res) {
-	row_num = 1;
-	col_num = 1;
-	paddr = new T[1];
-	*paddr = res;
 }
 
 template<typename T>
@@ -142,6 +115,8 @@ inline Matrix<T>::Matrix(Matrix && pmat) {
 	col_num = pmat.col_num;
 	paddr = pmat.paddr;
 	pmat.paddr = nullptr;
+	pmat.col_num = 0;
+	pmat.row_num = 0;
 }
 
 template<typename T>
@@ -167,37 +142,35 @@ constexpr inline T& Matrix<T>::at(size_t lnum, size_t cnum) const {
 //求指定坐标下的余子式
 template<typename T>
 inline Matrix<T> Matrix<T>::alg(size_t lnum, size_t cnum) const {
-	T* pbuf;
 	if (lnum >= row_num || cnum >= col_num) {
 		throw inter_error("矩阵元素访问错误！");
 	}
-	pbuf = new T[(row_num - 1)*(col_num - 1)];
+	Matrix<T> pbuf(row_num-1, col_num-1);
 	for (size_t i = 0, k = 0; i < row_num; i++) {
 		for (size_t j = 0; j < col_num; j++) {
 			if (i != lnum&&j != cnum) {
-				pbuf[k] = at(i, j);
+				pbuf.data()[k]= at(i, j);
 				k++;
 			}
 		}
 	}
-	return Matrix(row_num - 1, col_num - 1, pbuf, false);
+	return pbuf;
 }
 
 template<typename T>
 inline Matrix<T> Matrix<T>::adj() const {
-	T* pbuf;
 	if (row_num == 0 || col_num == 0)
 		return Matrix(0, 0);
 	if (row_num != col_num) {
 		throw inter_error("非方阵无法求取伴随阵");
 	}
-	pbuf = new T[row_num*col_num];
+	Matrix<T> pbuf(row_num, col_num);
 	for (size_t i = 0; i < row_num; i++) {
 		for (size_t j = 0; j < col_num; j++) {
-			pbuf[col_num*i + j] = ((j+i)%2?T(-1):T(1))*alg(j, i).det();
+			pbuf.at(i,j) = ((j+i)%2?T(-1):T(1))*alg(j, i).det();
 		}
 	}
-	return Matrix(row_num, col_num, pbuf, false);
+	return pbuf;
 }
 
 //求逆阵
@@ -213,13 +186,13 @@ inline Matrix<T> Matrix<T>::inv() const {
 //矩阵转置
 template<typename T>
 inline Matrix<T> Matrix<T>::rev() const{
-	T* pbuf = new T[row_num*col_num];
+	Matrix<T> pbuf(row_num,col_num);
 	for (size_t i = 0; i < col_num; i++) {
 		for (size_t j = 0; j < row_num; j++) {
-			pbuf[i*row_num + j] = at(j, i);
+			pbuf.at(i,j)= at(j, i);
 		}
 	}
-	return Matrix(col_num, row_num, pbuf, false);
+	return pbuf;
 }
 
 template<typename T>
@@ -265,6 +238,8 @@ inline Matrix<T> Matrix<T>::operator=(Matrix<T>&& pmat) {
 	col_num = pmat.col_num;
 	paddr = pmat.paddr;
 	pmat.paddr = nullptr;
+	pmat.row_num = 0;
+	pmat.col_num = 0;
 	return *this;
 }
 
@@ -289,60 +264,56 @@ inline bool Matrix<T>::operator!=(const Matrix<T> &pmat)const {
 
 template<typename T>
 inline Matrix<T> Matrix<T>::operator+(const Matrix<T> &pmat)const {
-	T* pFirst;
 	if (row_num != pmat.row_num || col_num != pmat.col_num) {
 		throw inter_error("非同型矩阵无法相加");
 	}
-	pFirst = new T[row_num*col_num];
+	Matrix<T> pFirst(row_num,col_num);
 	for (size_t i = 0; i < row_num; i++) {
 		for (size_t j = 0; j < col_num; j++) {
-			pFirst[col_num*i + j] = at(i, j) + pmat.at(i, j);
+			pFirst.at(i,j) = at(i, j) + pmat.at(i, j);
 		}
 	}
-	return Matrix(row_num, col_num, pFirst, false);
+	return pFirst;
 }
 template<typename T>
 inline Matrix<T> Matrix<T>::operator-(const Matrix<T> &pmat)const {
-	T* pFirst;
 	if (row_num != pmat.row_num || col_num != pmat.col_num) {
 		throw inter_error("非同型矩阵无法相减");
 	}
-	pFirst = new T[row_num*col_num];
+	Matrix<T> pFirst(row_num, col_num);
 	for (size_t i = 0; i < row_num; i++) {
 		for (size_t j = 0; j < col_num; j++) {
-			pFirst[col_num*i + j] = at(i, j) - pmat.at(i, j);
+			pFirst.at(i, j) = at(i, j) - pmat.at(i, j);
 		}
 	}
-	return Matrix(row_num, col_num, pFirst, false);
+	return pFirst;
 }
 template<typename T>
 inline Matrix<T> Matrix<T>::operator*(const T &pnum)const {
-	T* pFirst;
-	pFirst = new T[row_num*col_num];
+	Matrix<T> pFirst(row_num, col_num);
 	for (size_t i = 0; i < row_num; i++) {
 		for (size_t j = 0; j < col_num; j++) {
-			pFirst[col_num*i + j] = at(i, j)*pnum;
+			pFirst.at(i, j) = at(i, j)*pnum;
 		}
 	}
-	return Matrix(row_num, col_num, pFirst, false);
+	return pFirst;
 }
 
 template<typename T>
 inline Matrix<T> Matrix<T>::operator*(const Matrix<T> &pmat)const {
-	T* pFirst;
 	if (col_num != pmat.row_num) {
 		throw inter_error("乘数矩阵的行数和被乘数矩阵的列数不等");
 	}
-	pFirst = new T[row_num*pmat.col_num];
+	Matrix<T> pFirst(row_num, pmat.col_num);
 	for (size_t i = 0; i < row_num; i++) {
 		for (size_t j = 0; j < pmat.col_num; j++) {
-			pFirst[pmat.col_num*i + j] = at(i, 0)*pmat.at(0, j);
+			pFirst.at(i ,j) = at(i, 0)*pmat.at(0, j);
 			for (size_t m = 1; m < col_num; m++) {
-				pFirst[pmat.col_num*i + j] += at(i, m)*pmat.at(m, j);
+				pFirst.at(i, j) += at(i, m)*pmat.at(m, j);
 			}
 		}
 	}
-	return Matrix(row_num, pmat.col_num, pFirst, false);
+	return pFirst;
 }
 
 //矩阵除法

@@ -12,16 +12,15 @@ using namespace interpret;
 namespace {
 typedef interpret::Interpreter::Base_Data Use_Data;
 static inline Cmatrix_Type Num_To_Complex(const Matrix_Type& a) {
-	Complex_Type* pbuf;
 	size_t row_num = a.row();
 	size_t col_num = a.col();
-	pbuf = new Complex_Type[row_num*col_num];
+	Cmatrix_Type pbuf(row_num, col_num);
 	for (size_t i = 0; i < row_num; i++) {
 		for (size_t j = 0; j < col_num; j++) {
-			pbuf[i*col_num+j] = a.at(i, j);
+			pbuf.at(i,j) = a.at(i, j);
 		}
 	}
-	return Cmatrix_Type(row_num, col_num, pbuf, false);
+	return pbuf;
 }
 //定义所有支持类型的加法
 static inline Num_Type	raddition(const Num_Type& a, const Num_Type& b) {
@@ -510,16 +509,15 @@ static inline Interpreter::Array_Data rtgamma(const Interpreter::Array_Data* a) 
 	return pvec;
 }
 static inline Matrix_Type rtgamma(const Matrix_Type* a1) {
-	Num_Type* pbuf;
 	size_t row_num = a1->row();
 	size_t col_num = a1->col();
-	pbuf = new Num_Type[row_num*col_num];
+	Matrix_Type pbuf(row_num, col_num);
 	for (size_t i = 0; i<row_num; i++) {
 		for (size_t j = 0; j<col_num; j++) {
-			pbuf[i*col_num + j] = tgamma(a1->at(i, j));
+			pbuf.at(i,j) = tgamma(a1->at(i, j));
 		}
 	}
-	return Matrix_Type(row_num, col_num, pbuf, false);
+	return pbuf;
 }
 static inline Cmatrix_Type rtgamma(const Cmatrix_Type* a1){
 	throw show_err("不支持复数的阶乘");
@@ -746,10 +744,14 @@ Use_Data urcomp(const Use_Data& a) {
 }
 //强制转化为矩阵
 static inline Matrix_Type rmatrix(const bool a) {
-	return Matrix_Type(a);
+	Matrix_Type pbuf(1, 1);
+	pbuf.data()[0] = a;
+	return pbuf;
 }
 static inline Matrix_Type rmatrix(const Num_Type a) {
-	return Matrix_Type(a);
+	Matrix_Type pbuf(1, 1);
+	pbuf.data()[0] = a;
+	return pbuf;
 }
 static inline Matrix_Type rmatrix(const Matrix_Type* a) {
 	return *a;
@@ -783,17 +785,11 @@ Matrix_Type rmatrix(const Use_Data& a) {
 }
 static inline Matrix_Type rmatrix(const Interpreter::Array_Data* a) {
 	const size_t& data_size = a->size();
-	Num_Type* pbuf = new Num_Type[data_size];
-	try {
-		for (size_t i = 0; i < data_size; i++) {
-			pbuf[i] = rnum(a->at(i));
-		}
+	Matrix_Type pbuf(1, data_size);
+	for (size_t i = 0; i < data_size; i++) {
+		pbuf.at(0,i)= rnum(a->at(i));
 	}
-	catch (const interpret::inter_error& err) {
-		delete[] pbuf;
-		throw err;
-	}
-	return Matrix_Type(1, data_size, pbuf, false);
+	return pbuf;
 }
 Use_Data urmatrix(const Use_Data& a) {
 	if (a.get_type() == Interpreter::DATA_ARRAY) {
@@ -807,13 +803,19 @@ Use_Data urmatrix(const Use_Data& a) {
 
 //强制复数矩阵
 static inline Cmatrix_Type rcmatrix(const bool a) {
-	return Cmatrix_Type(a);
+	Cmatrix_Type pbuf(1, 1);
+	pbuf.data()[0] = a;
+	return pbuf;
 }
 static inline Cmatrix_Type rcmatrix(const Num_Type a) {
-	return Cmatrix_Type(a);
+	Cmatrix_Type pbuf(1, 1);
+	pbuf.data()[0] = a;
+	return pbuf;
 }
 static inline Cmatrix_Type rcmatrix(const Complex_Type a) {
-	return Cmatrix_Type(a);
+	Cmatrix_Type pbuf(1, 1);
+	pbuf.data()[0] = a;
+	return pbuf;
 }
 static inline Cmatrix_Type rcmatrix(const Matrix_Type* a) {
 	return Num_To_Complex(*a);
@@ -855,17 +857,11 @@ Cmatrix_Type rcmatrix(const Use_Data& a) {
 	}
 }
 static inline Cmatrix_Type rcmatrix(const Interpreter::Array_Data* a) {
-	Complex_Type* pbuf = new Complex_Type[a->size()];
-	try {
-		for (size_t i = 0; i < a->size(); i++) {
-			pbuf[i] = rcomp(a->at(i));
-		}
+	Cmatrix_Type pbuf (1,a->size());
+	for (size_t i = 0; i < a->size(); i++) {
+		pbuf.at(0,i) = rcomp(a->at(i));
 	}
-	catch (const interpret::inter_error& err) {
-		delete[] pbuf;
-		throw err;
-	}
-	return Cmatrix_Type(1, a->size(), pbuf, false);
+	return pbuf;
 }
 Use_Data urcmatrix(const Use_Data& a) {
 	if (a.get_type() == Interpreter::DATA_ARRAY) {
@@ -977,18 +973,19 @@ Use_Data rdim(const Use_Data& a) {
 		a.get_data(pvec);
 		if (pvec->size() == 2) {
 			Num_Type row_num, col_num;
-			Num_Type* pbuf;
 			pvec->at(0).get_data(row_num);
 			pvec->at(1).get_data(col_num);
-			pbuf = new Num_Type[size_t(row_num)*size_t(col_num)]();
+			Matrix_Type pbuf(static_cast<size_t>(row_num), static_cast<size_t>(col_num));
 			for (size_t i = 0; i < size_t(row_num); i++) {
 				for (size_t j = 0; j < size_t(col_num); j++) {
 					if (i == j) {
-						pbuf[size_t(col_num)*i + j] = 1;
+						pbuf.at(i, j) = 1;
 					}
+					else
+						pbuf.at(i, j) = 0;
 				}
 			}
-			return Use_Data(Matrix_Type(size_t(row_num), size_t(col_num),pbuf,false));
+			return Use_Data(pbuf);
 		}
 		else
 			throw show_err("函数参数过多");
@@ -996,350 +993,353 @@ Use_Data rdim(const Use_Data& a) {
 	else
 		throw show_err("函数参数错误");
 }
-#define MATRIX_FUNCTION_DECLARE(name)	Use_Data m##name##(const Use_Data& a){\
-											switch(a.get_type()){\
-											case Interpreter::DATA_MATRIX:{\
-												const Matrix_Type* a1;\
-												a.get_data(a1); \
-												return Use_Data(name##(a1));\
-												} \
-											case Interpreter::DATA_CMATRIX:{\
-												const Cmatrix_Type* a1;\
-												a.get_data(a1); \
-												return Use_Data(name##(a1));\
-												} \
-											default:\
-												throw show_err("函数不支持其类型"); \
-											}\
-										}
-#define ARRAY_FUNCTION_DECLARE(name)    Use_Data a##name##(const Use_Data& a){\
-											switch(a.get_type()){\
-											case Interpreter::DATA_ARRAY:{\
-												const Interpreter::Array_Data* a1;\
-												a.get_data(a1);\
-												return Use_Data(name##(a1));\
-											}\
-											default:\
-												throw show_err("函数不支持其类型"); \
-											}\
-										}
-#define SINGLEVAR_FUNCTION_DECLARE(name) Use_Data u##name##(const Use_Data& a) {\
-                                        switch (a.get_type()) {\
-                                        case Interpreter::DATA_DOUBLE: {\
-                                            Num_Type a1;\
-                                            a.get_data(a1);\
-                                            return Use_Data(name##(a1));\
-                                        }\
-                                        case Interpreter::DATA_COMPLEX: {\
-                                            Complex_Type a1;\
-                                            a.get_data(a1);\
-                                            return Use_Data(name##(a1));\
-                                        }\
-										case Interpreter::DATA_BOOL:{\
-											bool a1;\
-											a.get_data(a1);\
-											return Use_Data(name##(a1));\
-										}\
-										case Interpreter::DATA_ARRAY: {\
-											const Interpreter::Array_Data* a1;\
-											a.get_data(a1);\
-											return Use_Data(name##(a1));\
-										}\
-										case Interpreter::DATA_MATRIX:{\
-											const Matrix_Type* a1;\
-											a.get_data(a1);\
-											return Use_Data(name##(a1));\
-										}\
-										case Interpreter::DATA_CMATRIX:{\
-											const Cmatrix_Type* a1;\
-											a.get_data(a1);\
-											return Use_Data(name##(a1));\
-										}\
-                                        default:\
-                                            throw show_err("函数不支持其类型");\
-                                        }\
-                                        }
-#define BINARY_FUNCTION_DECLARE(name)	Use_Data u##name##(const Use_Data& a, const Use_Data& b){\
-												switch(a.get_type()){\
-												case Interpreter::DATA_DOUBLE:{\
-													Num_Type a1;\
-													a.get_data(a1);\
-													switch (b.get_type()) {\
-													case Interpreter::DATA_DOUBLE: {\
-														Num_Type b1;\
-														b.get_data(b1);\
-														return Use_Data(name##(a1,b1));\
-														}\
-													case Interpreter::DATA_COMPLEX: {\
-														Complex_Type b1;\
-														b.get_data(b1);\
-														return Use_Data(name##(a1,b1));\
-														}\
-													case Interpreter::DATA_BOOL:{\
-														bool b1;\
-														b.get_data(b1);\
-														return Use_Data(name##(a1, b1)); \
-														}\
-													case Interpreter::DATA_MATRIX:{\
-														const Matrix_Type* b1;\
-														b.get_data(b1); \
-														return Use_Data(name##(a1, b1)); \
-														}\
-													case Interpreter::DATA_CMATRIX:{\
-														const Cmatrix_Type* b1;\
-														b.get_data(b1); \
-														return Use_Data(name##(a1, b1)); \
-														}\
-													case Interpreter::DATA_ARRAY: {\
-														const Interpreter::Array_Data *b1;\
-														Interpreter::Array_Data pvec;\
-														b.get_data(b1);\
-														for (size_t i = 0; i < b1->size(); i++) {\
-															pvec.push_back(u##name##(a, (*b1)[i]));\
-														}\
-														return Use_Data(pvec);\
-														}\
-													default:\
-														throw show_err("此函数不支持此类型，错误类型：",b.get_type());\
-													}\
-												}\
-												case Interpreter::DATA_COMPLEX:{\
-													Complex_Type a1;\
-													a.get_data(a1);\
-													switch (b.get_type()) {\
-													case Interpreter::DATA_DOUBLE: {\
-														Num_Type b1;\
-														b.get_data(b1);\
-														return Use_Data(name##(a1,b1));\
-														}\
-													case Interpreter::DATA_COMPLEX: {\
-														Complex_Type b1;\
-														b.get_data(b1);\
-														return Use_Data(name##(a1,b1));\
-														}\
-													case Interpreter::DATA_BOOL:{\
-														bool b1;\
-														b.get_data(b1);\
-														return Use_Data(name##(a1, b1)); \
-														}\
-													case Interpreter::DATA_MATRIX:{\
-														const Matrix_Type* b1;\
-														b.get_data(b1); \
-														return Use_Data(name##(a1, b1)); \
-														}\
-													case Interpreter::DATA_CMATRIX:{\
-														const Cmatrix_Type* b1;\
-														b.get_data(b1); \
-														return Use_Data(name##(a1, b1)); \
-														}\
-													case Interpreter::DATA_ARRAY: {\
-														const Interpreter::Array_Data *b1;\
-														Interpreter::Array_Data pvec;\
-														b.get_data(b1);\
-														for (size_t i = 0; i < b1->size(); i++) {\
-															pvec.push_back(u##name##(a, (*b1)[i]));\
-														}\
-														return Use_Data(pvec);\
-														}\
-													default:\
-														throw show_err("此函数不支持此类型，错误类型：",b.get_type());\
-													}\
-												}\
-												case Interpreter::DATA_BOOL:{\
-													bool a1;\
-													a.get_data(a1);\
-													switch (b.get_type()) {\
-													case Interpreter::DATA_DOUBLE: {\
-														Num_Type b1;\
-														b.get_data(b1);\
-														return Use_Data(name##(a1,b1));\
-														}\
-													case Interpreter::DATA_COMPLEX: {\
-														Complex_Type b1;\
-														b.get_data(b1);\
-														return Use_Data(name##(a1,b1));\
-														}\
-													case Interpreter::DATA_BOOL:{\
-														bool b1;\
-														b.get_data(b1);\
-														return Use_Data(name##(a1, b1)); \
-														}\
-													case Interpreter::DATA_MATRIX:{\
-														const Matrix_Type* b1;\
-														b.get_data(b1); \
-														return Use_Data(name##(a1, b1)); \
-														}\
-													case Interpreter::DATA_CMATRIX:{\
-														const Cmatrix_Type* b1;\
-														b.get_data(b1); \
-														return Use_Data(name##(a1, b1)); \
-														}\
-													case Interpreter::DATA_ARRAY: {\
-														const Interpreter::Array_Data *b1;\
-														Interpreter::Array_Data pvec;\
-														b.get_data(b1);\
-														for (size_t i = 0; i < b1->size(); i++) {\
-															pvec.push_back(u##name##(a, (*b1)[i]));\
-														}\
-														return Use_Data(pvec);\
-														}\
-													default:\
-														throw show_err("此函数不支持此类型，错误类型：",b.get_type());\
-													}\
-												}\
-												case Interpreter::DATA_MATRIX:{\
-													const Matrix_Type* a1;\
-													a.get_data(a1);\
-													switch (b.get_type()) {\
-													case Interpreter::DATA_DOUBLE: {\
-														Num_Type b1;\
-														b.get_data(b1);\
-														return Use_Data(name##(a1,b1));\
-														}\
-													case Interpreter::DATA_COMPLEX: {\
-														Complex_Type b1;\
-														b.get_data(b1);\
-														return Use_Data(name##(a1,b1));\
-														}\
-													case Interpreter::DATA_BOOL:{\
-														bool b1;\
-														b.get_data(b1);\
-														return Use_Data(name##(a1, b1)); \
-														}\
-													case Interpreter::DATA_MATRIX:{\
-														const Matrix_Type* b1;\
-														b.get_data(b1); \
-														return Use_Data(name##(a1, b1)); \
-														}\
-													case Interpreter::DATA_CMATRIX:{\
-														const Cmatrix_Type* b1;\
-														b.get_data(b1); \
-														return Use_Data(name##(a1, b1)); \
-														}\
-													case Interpreter::DATA_ARRAY: {\
-														const Interpreter::Array_Data *b1;\
-														Interpreter::Array_Data pvec;\
-														b.get_data(b1);\
-														for (size_t i = 0; i < b1->size(); i++) {\
-															pvec.push_back(u##name##(a, (*b1)[i]));\
-														}\
-														return Use_Data(pvec);\
-														}\
-													default:\
-														throw show_err("此函数不支持此类型，错误类型：",b.get_type());\
-													}\
-												}\
-												case Interpreter::DATA_CMATRIX:{\
-													const Cmatrix_Type* a1;\
-													a.get_data(a1);\
-													switch (b.get_type()) {\
-													case Interpreter::DATA_DOUBLE: {\
-														Num_Type b1;\
-														b.get_data(b1);\
-														return Use_Data(name##(a1,b1));\
-														}\
-													case Interpreter::DATA_COMPLEX: {\
-														Complex_Type b1;\
-														b.get_data(b1);\
-														return Use_Data(name##(a1,b1));\
-														}\
-													case Interpreter::DATA_BOOL:{\
-														bool b1;\
-														b.get_data(b1);\
-														return Use_Data(name##(a1, b1)); \
-														}\
-													case Interpreter::DATA_MATRIX:{\
-														const Matrix_Type* b1;\
-														b.get_data(b1); \
-														return Use_Data(name##(a1, b1)); \
-														}\
-													case Interpreter::DATA_CMATRIX:{\
-														const Cmatrix_Type* b1;\
-														b.get_data(b1); \
-														return Use_Data(name##(a1, b1)); \
-														}\
-													case Interpreter::DATA_ARRAY: {\
-														const Interpreter::Array_Data *b1;\
-														Interpreter::Array_Data pvec;\
-														b.get_data(b1);\
-														for (size_t i = 0; i < b1->size(); i++) {\
-															pvec.push_back(u##name##(a, (*b1)[i]));\
-														}\
-														return Use_Data(pvec);\
-														}\
-													default:\
-														throw show_err("此函数不支持此类型，错误类型：",b.get_type());\
-													}\
-												}\
-												case Interpreter::DATA_ARRAY: {\
-													const Interpreter::Array_Data *a1;\
-													Interpreter::Array_Data pvec;\
-													a.get_data(a1);\
-													if (b.get_type() == Interpreter::DATA_ARRAY) {\
-														const Interpreter::Array_Data *b1;\
-														b.get_data(b1);\
-														if (a1->size() != b1->size())\
-															throw show_err("数组运算维数不匹配");\
-														for (size_t i = 0; i < a1->size(); i++) {\
-															pvec.push_back(u##name##((*a1)[i], (*b1)[i]));\
-														}\
-														return Use_Data(pvec);\
-													}\
-													else {\
-														for (size_t i = 0; i < a1->size(); i++) {\
-															pvec.push_back(u##name##((*a1)[i], b));\
-														}\
-														return Use_Data(pvec);\
-													}\
-													}\
-												default:\
-														throw show_err("此函数不支持此类型，错误类型：",a.get_type());\
-											}\
-											}
+#define MATRIX_FUNCTION_DECLARE(name)	\
+Use_Data m##name##(const Use_Data& a){\
+	switch(a.get_type()){\
+	case Interpreter::DATA_MATRIX:{\
+		const Matrix_Type* a1;\
+		a.get_data(a1); \
+		return Use_Data(name##(a1));\
+		} \
+	case Interpreter::DATA_CMATRIX:{\
+		const Cmatrix_Type* a1;\
+		a.get_data(a1); \
+		return Use_Data(name##(a1));\
+		} \
+	default:\
+		throw show_err("函数不支持其类型"); \
+	}\
+}
+#define ARRAY_FUNCTION_DECLARE(name)    \
+Use_Data a##name##(const Use_Data& a){\
+	switch(a.get_type()){\
+	case Interpreter::DATA_ARRAY:{\
+		const Interpreter::Array_Data* a1;\
+		a.get_data(a1);\
+		return Use_Data(name##(a1));\
+	}\
+	default:\
+		throw show_err("函数不支持其类型"); \
+	}\
+}
+#define SINGLEVAR_FUNCTION_DECLARE(name) \
+Use_Data u##name##(const Use_Data& a) {\
+switch (a.get_type()) {\
+case Interpreter::DATA_DOUBLE: {\
+    Num_Type a1;\
+    a.get_data(a1);\
+    return Use_Data(name##(a1));\
+}\
+case Interpreter::DATA_COMPLEX: {\
+    Complex_Type a1;\
+    a.get_data(a1);\
+    return Use_Data(name##(a1));\
+}\
+case Interpreter::DATA_BOOL:{\
+	bool a1;\
+	a.get_data(a1);\
+	return Use_Data(name##(a1));\
+}\
+case Interpreter::DATA_ARRAY: {\
+	const Interpreter::Array_Data* a1;\
+	a.get_data(a1);\
+	return Use_Data(name##(a1));\
+}\
+case Interpreter::DATA_MATRIX:{\
+	const Matrix_Type* a1;\
+	a.get_data(a1);\
+	return Use_Data(name##(a1));\
+}\
+case Interpreter::DATA_CMATRIX:{\
+	const Cmatrix_Type* a1;\
+	a.get_data(a1);\
+	return Use_Data(name##(a1));\
+}\
+default:\
+    throw show_err("函数不支持其类型");\
+}\
+}
+#define BINARY_FUNCTION_DECLARE(name)	\
+Use_Data u##name##(const Use_Data& a, const Use_Data& b){\
+	switch(a.get_type()){\
+	case Interpreter::DATA_DOUBLE:{\
+		Num_Type a1;\
+		a.get_data(a1);\
+		switch (b.get_type()) {\
+		case Interpreter::DATA_DOUBLE: {\
+			Num_Type b1;\
+			b.get_data(b1);\
+			return Use_Data(name##(a1,b1));\
+			}\
+		case Interpreter::DATA_COMPLEX: {\
+			Complex_Type b1;\
+			b.get_data(b1);\
+			return Use_Data(name##(a1,b1));\
+			}\
+		case Interpreter::DATA_BOOL:{\
+			bool b1;\
+			b.get_data(b1);\
+			return Use_Data(name##(a1, b1)); \
+			}\
+		case Interpreter::DATA_MATRIX:{\
+			const Matrix_Type* b1;\
+			b.get_data(b1); \
+			return Use_Data(name##(a1, b1)); \
+			}\
+		case Interpreter::DATA_CMATRIX:{\
+			const Cmatrix_Type* b1;\
+			b.get_data(b1); \
+			return Use_Data(name##(a1, b1)); \
+			}\
+		case Interpreter::DATA_ARRAY: {\
+			const Interpreter::Array_Data *b1;\
+			Interpreter::Array_Data pvec;\
+			b.get_data(b1);\
+			for (size_t i = 0; i < b1->size(); i++) {\
+				pvec.push_back(u##name##(a, (*b1)[i]));\
+			}\
+			return Use_Data(pvec);\
+			}\
+		default:\
+			throw show_err("此函数不支持此类型，错误类型：",b.get_type());\
+		}\
+	}\
+	case Interpreter::DATA_COMPLEX:{\
+		Complex_Type a1;\
+		a.get_data(a1);\
+		switch (b.get_type()) {\
+		case Interpreter::DATA_DOUBLE: {\
+			Num_Type b1;\
+			b.get_data(b1);\
+			return Use_Data(name##(a1,b1));\
+			}\
+		case Interpreter::DATA_COMPLEX: {\
+			Complex_Type b1;\
+			b.get_data(b1);\
+			return Use_Data(name##(a1,b1));\
+			}\
+		case Interpreter::DATA_BOOL:{\
+			bool b1;\
+			b.get_data(b1);\
+			return Use_Data(name##(a1, b1)); \
+			}\
+		case Interpreter::DATA_MATRIX:{\
+			const Matrix_Type* b1;\
+			b.get_data(b1); \
+			return Use_Data(name##(a1, b1)); \
+			}\
+		case Interpreter::DATA_CMATRIX:{\
+			const Cmatrix_Type* b1;\
+			b.get_data(b1); \
+			return Use_Data(name##(a1, b1)); \
+			}\
+		case Interpreter::DATA_ARRAY: {\
+			const Interpreter::Array_Data *b1;\
+			Interpreter::Array_Data pvec;\
+			b.get_data(b1);\
+			for (size_t i = 0; i < b1->size(); i++) {\
+				pvec.push_back(u##name##(a, (*b1)[i]));\
+			}\
+			return Use_Data(pvec);\
+			}\
+		default:\
+			throw show_err("此函数不支持此类型，错误类型：",b.get_type());\
+		}\
+	}\
+	case Interpreter::DATA_BOOL:{\
+		bool a1;\
+		a.get_data(a1);\
+		switch (b.get_type()) {\
+		case Interpreter::DATA_DOUBLE: {\
+			Num_Type b1;\
+			b.get_data(b1);\
+			return Use_Data(name##(a1,b1));\
+			}\
+		case Interpreter::DATA_COMPLEX: {\
+			Complex_Type b1;\
+			b.get_data(b1);\
+			return Use_Data(name##(a1,b1));\
+			}\
+		case Interpreter::DATA_BOOL:{\
+			bool b1;\
+			b.get_data(b1);\
+			return Use_Data(name##(a1, b1)); \
+			}\
+		case Interpreter::DATA_MATRIX:{\
+			const Matrix_Type* b1;\
+			b.get_data(b1); \
+			return Use_Data(name##(a1, b1)); \
+			}\
+		case Interpreter::DATA_CMATRIX:{\
+			const Cmatrix_Type* b1;\
+			b.get_data(b1); \
+			return Use_Data(name##(a1, b1)); \
+			}\
+		case Interpreter::DATA_ARRAY: {\
+			const Interpreter::Array_Data *b1;\
+			Interpreter::Array_Data pvec;\
+			b.get_data(b1);\
+			for (size_t i = 0; i < b1->size(); i++) {\
+				pvec.push_back(u##name##(a, (*b1)[i]));\
+			}\
+			return Use_Data(pvec);\
+			}\
+		default:\
+			throw show_err("此函数不支持此类型，错误类型：",b.get_type());\
+		}\
+	}\
+	case Interpreter::DATA_MATRIX:{\
+		const Matrix_Type* a1;\
+		a.get_data(a1);\
+		switch (b.get_type()) {\
+		case Interpreter::DATA_DOUBLE: {\
+			Num_Type b1;\
+			b.get_data(b1);\
+			return Use_Data(name##(a1,b1));\
+			}\
+		case Interpreter::DATA_COMPLEX: {\
+			Complex_Type b1;\
+			b.get_data(b1);\
+			return Use_Data(name##(a1,b1));\
+			}\
+		case Interpreter::DATA_BOOL:{\
+			bool b1;\
+			b.get_data(b1);\
+			return Use_Data(name##(a1, b1)); \
+			}\
+		case Interpreter::DATA_MATRIX:{\
+			const Matrix_Type* b1;\
+			b.get_data(b1); \
+			return Use_Data(name##(a1, b1)); \
+			}\
+		case Interpreter::DATA_CMATRIX:{\
+			const Cmatrix_Type* b1;\
+			b.get_data(b1); \
+			return Use_Data(name##(a1, b1)); \
+			}\
+		case Interpreter::DATA_ARRAY: {\
+			const Interpreter::Array_Data *b1;\
+			Interpreter::Array_Data pvec;\
+			b.get_data(b1);\
+			for (size_t i = 0; i < b1->size(); i++) {\
+				pvec.push_back(u##name##(a, (*b1)[i]));\
+			}\
+			return Use_Data(pvec);\
+			}\
+		default:\
+			throw show_err("此函数不支持此类型，错误类型：",b.get_type());\
+		}\
+	}\
+	case Interpreter::DATA_CMATRIX:{\
+		const Cmatrix_Type* a1;\
+		a.get_data(a1);\
+		switch (b.get_type()) {\
+		case Interpreter::DATA_DOUBLE: {\
+			Num_Type b1;\
+			b.get_data(b1);\
+			return Use_Data(name##(a1,b1));\
+			}\
+		case Interpreter::DATA_COMPLEX: {\
+			Complex_Type b1;\
+			b.get_data(b1);\
+			return Use_Data(name##(a1,b1));\
+			}\
+		case Interpreter::DATA_BOOL:{\
+			bool b1;\
+			b.get_data(b1);\
+			return Use_Data(name##(a1, b1)); \
+			}\
+		case Interpreter::DATA_MATRIX:{\
+			const Matrix_Type* b1;\
+			b.get_data(b1); \
+			return Use_Data(name##(a1, b1)); \
+			}\
+		case Interpreter::DATA_CMATRIX:{\
+			const Cmatrix_Type* b1;\
+			b.get_data(b1); \
+			return Use_Data(name##(a1, b1)); \
+			}\
+		case Interpreter::DATA_ARRAY: {\
+			const Interpreter::Array_Data *b1;\
+			Interpreter::Array_Data pvec;\
+			b.get_data(b1);\
+			for (size_t i = 0; i < b1->size(); i++) {\
+				pvec.push_back(u##name##(a, (*b1)[i]));\
+			}\
+			return Use_Data(pvec);\
+			}\
+		default:\
+			throw show_err("此函数不支持此类型，错误类型：",b.get_type());\
+		}\
+	}\
+	case Interpreter::DATA_ARRAY: {\
+		const Interpreter::Array_Data *a1;\
+		Interpreter::Array_Data pvec;\
+		a.get_data(a1);\
+		if (b.get_type() == Interpreter::DATA_ARRAY) {\
+			const Interpreter::Array_Data *b1;\
+			b.get_data(b1);\
+			if (a1->size() != b1->size())\
+				throw show_err("数组运算维数不匹配");\
+			for (size_t i = 0; i < a1->size(); i++) {\
+				pvec.push_back(u##name##((*a1)[i], (*b1)[i]));\
+			}\
+			return Use_Data(pvec);\
+		}\
+		else {\
+			for (size_t i = 0; i < a1->size(); i++) {\
+				pvec.push_back(u##name##((*a1)[i], b));\
+			}\
+			return Use_Data(pvec);\
+		}\
+		}\
+	default:\
+			throw show_err("此函数不支持此类型，错误类型：",a.get_type());\
+}\
+}
  
 
-#define SINGLEVAR_FUNC_NEWDECLARE(name)		Use_Data ur##name##(const Use_Data& a);\
-											static inline Interpreter::Array_Data r##name##(const Interpreter::Array_Data* a){\
-												Interpreter::Array_Data pvec;\
-												for (size_t i = 0; i < a->size(); i++) {\
-													pvec.push_back(ur##name##((*a)[i]));\
-												}\
-												return pvec;\
-											}\
-											static inline Matrix_Type r##name##(const Matrix_Type* a1){\
-												Num_Type* pbuf;\
-												size_t row_num = a1->row();\
-												size_t col_num = a1->col();\
-												pbuf = new Num_Type[row_num*col_num];\
-												for (size_t i = 0; i<row_num; i++) {\
-													for (size_t j = 0; j<col_num; j++) {\
-														pbuf[i*col_num + j] = name##(a1->at(i, j));\
-													}\
-												}\
-												return Matrix_Type(row_num, col_num, pbuf, false);\
-											}\
-											static inline Cmatrix_Type r##name##(const Cmatrix_Type* a1){\
-												Complex_Type* pbuf;\
-												size_t row_num = a1->row();\
-												size_t col_num = a1->col();\
-												pbuf = new Complex_Type[row_num*col_num];\
-												for (size_t i = 0; i<row_num; i++) {\
-													for (size_t j = 0; j<col_num; j++) {\
-														pbuf[i*col_num + j] = name##(a1->at(i, j));\
-													}\
-												}\
-												return Cmatrix_Type(row_num, col_num, pbuf, false);\
-											}\
-											static inline Num_Type r##name##(const Num_Type&a){\
-												return name##(a);\
-											}\
-											static inline Num_Type r##name##(const bool&a){\
-												return name##(Num_Type(a));\
-											}\
-											static inline Complex_Type r##name##(const Complex_Type&a){\
-												return name##(a);\
-											}\
-											SINGLEVAR_FUNCTION_DECLARE(r##name)
+#define SINGLEVAR_FUNC_NEWDECLARE(name)		\
+Use_Data ur##name##(const Use_Data& a);\
+static inline Interpreter::Array_Data r##name##(const Interpreter::Array_Data* a){\
+	Interpreter::Array_Data pvec;\
+	for (size_t i = 0; i < a->size(); i++) {\
+		pvec.push_back(ur##name##((*a)[i]));\
+	}\
+	return pvec;\
+}\
+static inline Matrix_Type r##name##(const Matrix_Type* a1){\
+	size_t row_num = a1->row();\
+	size_t col_num = a1->col();\
+	Matrix_Type pbuf(row_num,col_num);\
+	for (size_t i = 0; i<row_num; i++) {\
+		for (size_t j = 0; j<col_num; j++) {\
+			pbuf.at(i,j) = name##(a1->at(i, j));\
+		}\
+	}\
+	return pbuf;\
+}\
+static inline Cmatrix_Type r##name##(const Cmatrix_Type* a1){\
+	size_t row_num = a1->row();\
+	size_t col_num = a1->col();\
+	Cmatrix_Type pbuf(row_num,col_num);\
+	for (size_t i = 0; i<row_num; i++) {\
+		for (size_t j = 0; j<col_num; j++) {\
+			pbuf.at(i,j) = name##(a1->at(i, j));\
+		}\
+	}\
+	return pbuf;\
+}\
+static inline Num_Type r##name##(const Num_Type&a){\
+	return name##(a);\
+}\
+static inline Num_Type r##name##(const bool&a){\
+	return name##(Num_Type(a));\
+}\
+static inline Complex_Type r##name##(const Complex_Type&a){\
+	return name##(a);\
+}\
+SINGLEVAR_FUNCTION_DECLARE(r##name)
 
 
 SINGLEVAR_FUNC_NEWDECLARE(sin)

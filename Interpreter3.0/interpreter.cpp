@@ -1228,10 +1228,7 @@ interpret::Interpreter::Base_Data interpret::Interpreter::Variable_Map::data_cha
 	if (ret != var_p_map.end()) {
 		const void* pnew;
 		_My_Map_Iter pIter = ret->second;
-		if (pIter->second.is_shadow())
-			pIter->second = std::move(pdata.get_real());
-		else
-			pIter->second = std::move(pdata);
+		pIter->second = pdata.get_real();
 		pIter->second.get_data(pnew);
 		var_p_map.erase(psrc);
 		var_p_map.insert(std::make_pair(pnew, pIter));
@@ -1400,19 +1397,19 @@ interpret::Interpreter::_My_List_Iter interpret::Interpreter::SQ_Bracket_Operato
 	}
 	if (is_double_num) {
 		size_t buf_size = num_buf.size();
-		Num_Type* pbuf = new Num_Type[buf_size];
+		Matrix_Type pbuf(row_num, col_finalnum);
 		for (size_t i = 0; i < buf_size; i++) {
-			pbuf[i] = num_buf[i];
+			pbuf.data()[i] = num_buf[i];
 		}
-		use_iter = instead(new Noraml_Num(Base_Data(Matrix_Type(row_num, col_finalnum, pbuf, false))));
+		use_iter = instead(new Noraml_Num(Base_Data(pbuf)));
 	}
 	else {
 		size_t buf_size = complex_buf.size();
-		Complex_Type* pbuf = new Complex_Type[buf_size];
+		Cmatrix_Type pbuf(row_num, col_finalnum);
 		for (size_t i = 0; i < buf_size; i++) {
-			pbuf[i] = complex_buf[i];
+			pbuf.data()[i] = complex_buf[i];
 		}
-		use_iter = instead(new Noraml_Num(Base_Data(Cmatrix_Type(row_num, col_finalnum, pbuf, false))));
+		use_iter = instead(new Noraml_Num(Base_Data(pbuf)));
 	}
 	return use_iter;
 }
@@ -1440,15 +1437,14 @@ void interpret::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variabl
 			if (rmat->col() != lmat->col()) {
 				throw show_err("行向量赋值失败，维数不统一");
 			}
-			Complex_Type* pbuf = new Complex_Type[lmat->col()*lmat->row()];
+			Cmatrix_Type pbuf(lmat->row(),lmat->col());
 			for (size_t i = 0; i < lmat->col()*lmat->row(); i++) {
-				pbuf[i] = lmat->data()[i];
+				pbuf.data()[i] = lmat->data()[i];
 			}
 			for (size_t i = 0; i < lmat->col(); i++) {
-				pbuf[xpos*lmat->col() + i] = rmat->at(0, i);
+				pbuf.at(xpos,i) = rmat->at(0, i);
 			}
-			pmap->data_change(paddr, Base_Data(Cmatrix_Type(lmat->row(), lmat->col(), pbuf, false)));
-
+			pmap->data_change(paddr, Base_Data(pbuf));
 		}
 		break;
 	}
@@ -1491,12 +1487,12 @@ void interpret::Interpreter::Node_Elem_Num::assign(Base_Data & num_data, Variabl
 		else {
 			Complex_Type rnum;
 			num_data.get_data(rnum);
-			Complex_Type* pbuf = new Complex_Type[lmat->col()*lmat->row()];
+			Cmatrix_Type pbuf(lmat->row(),lmat->col());
 			for (size_t i = 0; i < lmat->col()*lmat->row(); i++) {
-				pbuf[i] = lmat->data()[i];
+				pbuf.data()[i] = lmat->data()[i];
 			}
-			pbuf[xpos*lmat->col() + ypos] = rnum;
-			pmap->data_change(paddr, Base_Data(Cmatrix_Type(lmat->row(), lmat->col(), pbuf, false)));
+			pbuf.at(xpos,ypos) = rnum;
+			pmap->data_change(paddr, Base_Data(pbuf));
 		}
 		break;
 	}
@@ -1534,21 +1530,21 @@ void interpret::Interpreter::Node_Elem_Num::get_data(Base_Data & num_data) {
 	case MATRIX_1: {
 		const auto&& lmat = reinterpret_cast<Matrix_Type*>(paddr);
 		size_t lcol = lmat->col();
-		Num_Type* pbuf = new Num_Type[lcol];
+		Matrix_Type pbuf(1, lcol);
 		for (size_t i = 0; i < lcol; i++) {
-			pbuf[i] = lmat->at(xpos, i);
+			pbuf.at(0,i) = lmat->at(xpos, i);
 		}
-		num_data = Base_Data(Matrix_Type(1, lcol, pbuf, false));
+		num_data = Base_Data(pbuf);
 		break;
 	}
 	case CMATRIX_1: {
 		const auto&& lmat = reinterpret_cast<Cmatrix_Type*>(paddr);
 		size_t lcol = lmat->col();
-		Complex_Type* pbuf = new Complex_Type[lcol];
+		Cmatrix_Type pbuf(1, lcol);
 		for (size_t i = 0; i < lcol; i++) {
-			pbuf[i] = lmat->at(xpos, i);
+			pbuf.at(0,i) = lmat->at(xpos, i);
 		}
-		num_data = Base_Data(Cmatrix_Type(1, lcol, pbuf, false));
+		num_data = Base_Data(pbuf);
 		break;
 	}
 	case MATRIX_2: {
