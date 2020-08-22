@@ -1148,21 +1148,23 @@ interpret::Interpreter::_My_List_Iter interpret::Interpreter::Comma_Operator::op
 		pPackage.push_back(pdata);
 		delete pItem;
 	};
+	if(this==get_master()->front())
+		throw show_err("逗号使用错误！");
 	move_to_package(*priv(comma_iter));//逗号前的元素移到包内
-	if (next(comma_iter) == get_master()->end()) {
+	if (this == get_master()->back()) {
 		throw show_err("逗号使用错误！");
 	}
 	move_to_package(*next(comma_iter));//逗号后的元素移到包内
-	if (next(comma_iter) == get_master()->end()) {
+	if (this == get_master()->back()) {
 		return instead(new Noraml_Num(Base_Data(pPackage)));
 	}
 	comma_iter++;//尝试看看后面是否还有逗号
 	while ((*comma_iter)->get_item() == COMMA_OPRERATOR) {
-		if (next(comma_iter) == get_master()->end()) {//逗号做结尾的情况
+		if (*comma_iter == get_master()->back()) {//逗号做结尾的情况
 			throw show_err("逗号使用错误！");
 		}
 		move_to_package(*next(comma_iter));
-		if (next(comma_iter) == get_master()->end()) {//移除完元素后面没有逗号了
+		if (*comma_iter == get_master()->back()) {//移除完元素后面没有逗号了
 			delete *comma_iter;//把自己删掉，只保留一个用来替换元素，其他的成分都删掉
 			break;
 		}

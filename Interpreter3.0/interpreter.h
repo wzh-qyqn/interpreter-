@@ -292,35 +292,6 @@ private:
 		}
 		virtual _My_List_Iter operation(void)override = 0;
 	};
-    class Noraml_Num :public Node_Num {
-    public:
-        Noraml_Num(_My_List* baselist,Base_Data&& usenum) :
-			Node_Num(baselist, NUM, usenum){};
-        Noraml_Num(Base_Data&&usenum):
-			Node_Num(NUM, usenum){}
-        Noraml_Num(_My_List* baselist, const Base_Data& usenum) :
-			Node_Num(baselist, NUM, usenum) {};
-		Noraml_Num(const Base_Data& usenum) :
-			Node_Num(NUM, usenum) {}
-        virtual _My_List_Iter operation(void)override {
-            return ++get_iter();
-        }
-    };
-	class Varible_Num :public Node_Num {
-	public:
-		Varible_Num(_My_List* baselist, Base_Data&& usenum) :
-			Node_Num(baselist, NUM_VARIBLE, usenum) {};
-		Varible_Num(Base_Data&&usenum) :
-			Node_Num(NUM_VARIBLE, usenum) {}
-		Varible_Num(_My_List* baselist, const Base_Data& usenum) :
-			Node_Num(baselist, NUM_VARIBLE, usenum) {};
-		Varible_Num(const Base_Data& usenum) :
-			Node_Num(NUM_VARIBLE, usenum) {}
-		virtual _My_List_Iter operation(void)override {
-			return ++get_iter();
-		}
-	};
-	
     /**
     * @brief 附加数据为 string的Base_Item 派生类
     */
@@ -405,6 +376,34 @@ private:
         virtual ~Node_Vector() {}
     };
 
+	class Noraml_Num :public Node_Num {
+	public:
+		Noraml_Num(_My_List* baselist, Base_Data&& usenum) :
+			Node_Num(baselist, NUM, usenum) {};
+		Noraml_Num(Base_Data&&usenum) :
+			Node_Num(NUM, usenum) {}
+		Noraml_Num(_My_List* baselist, const Base_Data& usenum) :
+			Node_Num(baselist, NUM, usenum) {};
+		Noraml_Num(const Base_Data& usenum) :
+			Node_Num(NUM, usenum) {}
+		virtual _My_List_Iter operation(void)override {
+			return ++get_iter();
+		}
+	};
+	class Varible_Num :public Node_Num {
+	public:
+		Varible_Num(_My_List* baselist, Base_Data&& usenum) :
+			Node_Num(baselist, NUM_VARIBLE, usenum) {};
+		Varible_Num(Base_Data&&usenum) :
+			Node_Num(NUM_VARIBLE, usenum) {}
+		Varible_Num(_My_List* baselist, const Base_Data& usenum) :
+			Node_Num(baselist, NUM_VARIBLE, usenum) {};
+		Varible_Num(const Base_Data& usenum) :
+			Node_Num(NUM_VARIBLE, usenum) {}
+		virtual _My_List_Iter operation(void)override {
+			return ++get_iter();
+		}
+	};
 
     /**
     * @brief 二元运算符的节点
