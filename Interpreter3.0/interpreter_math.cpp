@@ -6,7 +6,7 @@
 * @Description: 定义支持Base_Data数据类型的数学函数
 ********************************************************************************/
 #include "interpreter.h"
-
+#include <time.h>
 
 using namespace interpret;
 namespace {
@@ -1384,7 +1384,45 @@ static inline Use_Data rsum(const Interpreter::Array_Data* pvec) {
 	}
 	return pdata;
 }
+static inline Use_Data rrand(const Interpreter::Array_Data* pvec) {
+	srand(unsigned int(time(0)));
+	if (pvec->size() == 2) {
+		Num_Type num_min;
+		Num_Type num_max;
+		
+		pvec->at(0).get_data(num_min);
+		pvec->at(1).get_data(num_max);
+		if (num_min > num_max) {
+			throw show_err("参数错误：最小值需要小于最大值");
+		}
+		return Use_Data(rand() % static_cast<unsigned int>(num_max - num_min + 1) + num_min);
+	}
+	else if (pvec->size() == 4) {
+		Num_Type num_min;
+		Num_Type num_max;
+		Num_Type row_num;
+		Num_Type col_num;
+		pvec->at(0).get_data(num_min);
+		pvec->at(1).get_data(num_max);
+		pvec->at(2).get_data(row_num);
+		pvec->at(3).get_data(col_num);
+		if (num_min > num_max) {
+			throw show_err("参数错误：最小值需要小于最大值");
+		}
+		Matrix_Type pmat(static_cast<size_t>(row_num), static_cast<size_t>(col_num));
+		for (size_t i = 0; i < pmat.row(); i++) {
+			for (size_t j = 0; j < pmat.col(); j++) {
+				pmat.at(i, j) = rand() % static_cast<unsigned int>(num_max - num_min + 1) + num_min;
+			}
+		}
+		return Use_Data(std::move(pmat));
+	}
+	else
+		throw show_err("参数错误");
+}
+
 ARRAY_FUNCTION_DECLARE(rsum)
+ARRAY_FUNCTION_DECLARE(rrand)
 const Interpreter::Binary_Func_Pair sbinary_func[] = {
 	'+',4,uraddition,
 	'-',4,ursubstration,
@@ -1433,7 +1471,8 @@ const Interpreter::SingleVar_Func_Pair ssinglevar_func[] = {
 	"matrix",urmatrix,
 	"cmatrix",urcmatrix,
 	"zero",rzero,
-	"dim",rdim
+	"dim",rdim,
+	"rand",arrand
 };
 const Interpreter::Const_Num_Pair sconst_BaseData[] = {
 	"pi",Use_Data(Num_Type(3.14159265358979323846)),
